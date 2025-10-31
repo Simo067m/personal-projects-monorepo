@@ -188,7 +188,7 @@ def get_portfolio_summary():
         if asset_holdings > 0.0:
             holdings_dict[asset_symbol] = {
                 "asset_holdings" : asset_holdings,
-                "asset_type" : asset_type
+                "asset_type" : asset_type.capitalize()
             }
     
     return holdings_dict

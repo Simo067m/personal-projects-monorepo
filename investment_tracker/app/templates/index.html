@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Investment Tracker</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+
+    <body>
+        Current holdings:
+        <br>
+        <table class="holdings-table">
+            <tr>
+                <th>Asset</th>
+                <th>Shares</th>
+                <th>Type</th>
+            </tr> 
+            {% for symbol, data in holdings.items() %}
+            <tr>
+                <td>{{ symbol }}</td>
+                <td>{{ data.asset_holdings }}</td>
+                <td>{{ data.asset_type }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>
