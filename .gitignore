@@ -55,6 +55,12 @@ cover/
 *.mo
 *.pot
 
+# Local Database
+# Ignore personal databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Django stuff:
 *.log
 local_settings.py
