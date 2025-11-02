@@ -1,6 +1,8 @@
 import sqlite3
 import os
 
+from .utils import convert_currency
+
 # Path to instance folder
 INSTANCE_FOLDER = os.path.join(os.path.dirname(__file__), "..", "instance")
 # Database file
@@ -23,7 +25,7 @@ def get_db_connection():
     except sqlite3.Error as e:
             print(f"An error occured: {e}")
 
-def add_asset(symbol : str, name : str, asset_type : str):
+def add_asset(symbol : str, name : str, asset_type : str, currency : str):
     """Adds an asset to the assets table."""
 
     # Get database connection
@@ -31,31 +33,39 @@ def add_asset(symbol : str, name : str, asset_type : str):
     if conn is None:
         print("Database connection failed.")
         return
-    cursor = conn.cursor()
+    
+    try:
+        cursor = conn.cursor()
 
-    # Define insert command
-    INSERT_ASSET = """
-    INSERT INTO assets (symbol, name, asset_type)
-    VALUES (?, ?, ?);
-    """
+        # Define insert command
+        INSERT_ASSET = """
+        INSERT INTO assets (symbol, name, asset_type, currency)
+        VALUES (?, ?, ?, ?);
+        """
 
-    # Execute command
-    parameters = (symbol, name, asset_type)
-    cursor.execute(INSERT_ASSET, parameters)
-    print(f"""Added asset:
-          Name: {name}
-          Symbol: {symbol}
-          Asset type: {asset_type}
-To the asset table.
-    """)
+        # Execute command
+        parameters = (symbol, name, asset_type, currency)
+        cursor.execute(INSERT_ASSET, parameters)
+        print(f"""Added asset:
+            Name: {name}
+            Symbol: {symbol}
+            Asset type: {asset_type}
+            Currency: {currency}
+    To the asset table.
+        """)
 
-    # Commit to the database
-    conn.commit()
-    print("Successfully commited to database.")
+        # Commit to the database
+        conn.commit()
+        print("Successfully commited to database.")
 
-    # Close the connection
-    conn.close()
-    print("Database connection closed.")
+    except sqlite3.Error as e:
+        print(f"An error occurred in add_asset: {e}")
+
+    finally:
+        if conn:    
+            # Close the connection
+            conn.close()
+            print("Database connection closed.")
 
 def add_transaction(asset_id : int, transaction_type : str, date : str,
                     quantity : float, price_per_unit : float, fees : float):
@@ -66,36 +76,84 @@ def add_transaction(asset_id : int, transaction_type : str, date : str,
     if conn is None:
         print("Database connection failed.")
         return
-    cursor = conn.cursor()
+    
+    try:
+        cursor = conn.cursor()
 
-    # Define insert command
-    INSERT_TRANSACTION = """
-    INSERT INTO transactions (asset_id, transaction_type, 
-    date, quantity, price_per_unit, fees)
-    VALUES (?, ?, ?, ?, ?, ?);
-    """
+        # Define insert command
+        INSERT_TRANSACTION = """
+        INSERT INTO transactions (asset_id, transaction_type, 
+        date, quantity, price_per_unit, fees)
+        VALUES (?, ?, ?, ?, ?, ?);
+        """
 
-    # Execute command
-    parameters = (asset_id, transaction_type, date, quantity, price_per_unit, fees)
-    cursor.execute(INSERT_TRANSACTION, parameters)
+        # Execute command
+        parameters = (asset_id, transaction_type, date, quantity, price_per_unit, fees)
+        cursor.execute(INSERT_TRANSACTION, parameters)
 
-    print(f"""Added transaction:
-          Asset ID: {asset_id}
-          Transaction type: {transaction_type}
-          Date: {date}
-          Quantity: {quantity}
-          Price per unit (DKK): {price_per_unit}
-          Fees (DKK): {fees}
-To the transactions table.
-    """)
+        print(f"""Added transaction:
+            Asset ID: {asset_id}
+            Transaction type: {transaction_type}
+            Date: {date}
+            Quantity: {quantity}
+            Price per unit: {price_per_unit}
+            Fees (DKK): {fees}
+    To the transactions table.
+        """)
 
-    # Commit to the database
-    conn.commit()
-    print("Successfully commited to database.")
+        # Commit to the database
+        conn.commit()
+        print("Successfully commited to database.")
 
-    # Close the connection
-    conn.close()
-    print("Database connection closed.")
+    except sqlite3.Error as e:
+        print(f"An error occurred in add_transaction: {e}")
+
+    finally:
+        if conn:    
+            # Close the connection
+            conn.close()
+            print("Database connection closed.")
+
+def add_price_to_history(asset_id : int, date : str, price : float):
+    """Adds and EOD price to an asset's history."""
+
+    # Get database connection
+    conn = get_db_connection()
+    if conn is None:
+        print("Database connection failed.")
+        return
+    
+    try: 
+        cursor = conn.cursor()
+
+        # Define insert command
+        INSERT_PRICE_HISTORY = """
+        INSERT INTO price_history (asset_id, date, price)
+        VALUES (?, ?, ?);
+        """
+
+        # Execute command
+        parameters = (asset_id, date, price)
+        cursor.execute(INSERT_PRICE_HISTORY, parameters)
+        print(f"""Added price:
+            Asset ID: {asset_id}
+            Date: {date}
+            Price: {price}
+    To the price_history table.
+        """)
+
+        # Commit to the database
+        conn.commit()
+        print("Successfully commited to database.")
+
+    except sqlite3.Error as e:
+        print(f"An error occurred in add_price_to_history: {e}")
+
+    finally:
+        if conn:    
+            # Close the connection
+            conn.close()
+            print("Database connection closed.")
 
 def get_all_assets():
     """Read all the assets in the assets table."""
@@ -105,22 +163,32 @@ def get_all_assets():
     if conn is None:
         print("Database connection failed.")
         return
-    cursor = conn.cursor()
+    
+    # Initialize assets list
+    assets = []
 
-    # Define select command
-    SELECT_ASSETS = """
-    SELECT * FROM assets; 
-"""
+    try:
+        cursor = conn.cursor()
 
-    # Execute the command
-    cursor.execute(SELECT_ASSETS)
+        # Define select command
+        SELECT_ASSETS = """
+        SELECT * FROM assets; 
+    """
 
-    # Fetch the results
-    assets = cursor.fetchall()
+        # Execute the command
+        cursor.execute(SELECT_ASSETS)
 
-    # Close the connection
-    conn.close()
-    print("Database connection closed.")
+        # Fetch the results
+        assets = cursor.fetchall()
+
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_all_assets: {e}")
+
+    finally:
+        if conn:    
+            # Close the connection
+            conn.close()
+            print("Database connection closed.")
 
     return assets
 
@@ -133,26 +201,83 @@ def get_all_transactions_for_asset(asset_id : int):
     if conn is None:
         print("Database connection failed.")
         return
-    cursor = conn.cursor()
+    
+    # Initialize return list
+    transactions = []
 
-    # Define select command
-    SELECT_TRANSACTIONS_FOR_ASSET = """
-    SELECT * FROM transactions
-    WHERE transactions.asset_id == (?); 
-"""
+    try:
+        cursor = conn.cursor()
 
-    # Execute the command
-    parameters = (asset_id,)
-    cursor.execute(SELECT_TRANSACTIONS_FOR_ASSET, parameters)
+        # Define select command
+        SELECT_TRANSACTIONS_FOR_ASSET = """
+        SELECT * FROM transactions
+        WHERE transactions.asset_id = (?); 
+    """
 
-    # Fetch the results
-    assets = cursor.fetchall()
+        # Execute the command
+        parameters = (asset_id,)
+        cursor.execute(SELECT_TRANSACTIONS_FOR_ASSET, parameters)
 
-    # Close the connection
-    conn.close()
-    print("Database connection closed.")
+        # Fetch the results
+        transactions = cursor.fetchall()
 
-    return assets
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_all_transactions_for_asset: {e}")
+
+    finally:
+        if conn:    
+            # Close the connection
+            conn.close()
+            print("Database connection closed.")
+
+    return transactions
+
+def get_latest_price(asset_id : int):
+    """Get the latest price for a specific asset ID."""
+
+    # Get database connection
+    conn = get_db_connection()
+    if conn is None:
+        print("Database connection failed.")
+        return
+    
+    # Initialize return value
+    price = None
+
+    try:
+        cursor = conn.cursor()
+
+        # Define select command
+        SELECT_LATEST_PRICE_FOR_ASSET = """
+        SELECT price FROM price_history
+        WHERE price_history.asset_id = (?)
+        ORDER BY date DESC
+        LIMIT 1
+    """
+
+        # Execute the command
+        parameters = (asset_id,)
+        cursor.execute(SELECT_LATEST_PRICE_FOR_ASSET, parameters)
+
+        # Fetch the result
+        price_result_tuple = cursor.fetchone()
+        
+        # Return None if no result
+        if price_result_tuple is None:
+            return None
+        
+        price = price_result_tuple[0]
+
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_latest_price: {e}")
+
+    finally:
+        if conn:    
+            # Close the connection
+            conn.close()
+            print("Database connection closed.")
+
+    return price
 
 def calculate_holdings(asset_id : int):
     """Get current holdings for a specific asset ID."""
@@ -175,20 +300,54 @@ def calculate_holdings(asset_id : int):
 def get_portfolio_summary():
     """Gets a summary of all current holdings."""
 
-    # Get all assets from the assets table
-    assets = get_all_assets()
+    # Get all assets
+    all_assets = get_all_assets()
 
-    # Get all current holdings
+    # Get value of all current holdings
     holdings_dict = {}
-    for asset in assets:
+    for asset in all_assets:
         asset_id = asset[0]
         asset_symbol = asset[1]
         asset_type = asset[3]
+        asset_currency = asset[4]
+
         asset_holdings = calculate_holdings(asset_id)
+
+        # Only add if asset is held
         if asset_holdings > 0.0:
+
+            asset_latest_price = get_latest_price(asset_id)
+
+            asset_dkk_price = None
+
+            if asset_latest_price is not None:
+                asset_dkk_price = convert_currency(asset_latest_price, asset_currency, "DKK")
+
             holdings_dict[asset_symbol] = {
+                "asset_id" : asset_id,
                 "asset_holdings" : asset_holdings,
-                "asset_type" : asset_type.capitalize()
+                "asset_type" : asset_type,
+                "latest_price" : asset_latest_price,
+                "asset_currency" : asset_currency,
+                "asset_dkk_price" : asset_dkk_price
             }
     
     return holdings_dict
+
+
+def get_portfolio_value():
+    """Gets the total accumulated value of all current holdings."""
+
+    # Get current holdings and summary
+    holdings_dict = get_portfolio_summary()
+
+    # Compute total value of holdings
+    total_value_dkk = 0.0
+    for _, data in holdings_dict.items():
+        if data["asset_holdings"] > 0.0:
+            if data["asset_dkk_price"] is not None:
+                asset_value = data["asset_holdings"] * data["asset_dkk_price"]
+
+                total_value_dkk += asset_value
+
+    return total_value_dkk
