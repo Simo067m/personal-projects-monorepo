@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS assets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     symbol TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
-    asset_type TEXT NOT NULL
+    asset_type TEXT NOT NULL,
+    currency TEXT NOT NULL
 );
 """
 
@@ -26,6 +27,17 @@ CREATE TABLE IF NOT EXISTS transactions (
     price_per_unit REAL NOT NULL,
     fees REAL DEFAULT 0.0,
     FOREIGN KEY (asset_id) REFERENCES assets (id)
+);
+"""
+
+CREATE_PRICE_HISTORY_TABLE = """
+CREATE TABLE IF NOT EXISTS price_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    asset_id INTEGER NOT NULL,
+    date TEXT NOT NULL,
+    price REAL NOT NULL,
+    FOREIGN KEY (asset_id) REFERENCES assets (id),
+    UNIQUE(asset_id, date) -- Ensures one price per asset per day (EOD price)
 );
 """
 
@@ -48,6 +60,9 @@ def initialize_database():
         
         cursor.execute(CREATE_TRANSACTIONS_TABLE)
         print("Created 'transactions' table (or it already exists).")
+
+        cursor.execute(CREATE_PRICE_HISTORY_TABLE)
+        print("Created 'price_history' table (or it already exists).")
 
         # Commit changes
         conn.commit()
