@@ -51,7 +51,7 @@ def add_asset(symbol : str, name : str, asset_type : str, currency : str):
             Symbol: {symbol}
             Asset type: {asset_type}
             Currency: {currency}
-    To the asset table.
+To the asset table.
         """)
 
         # Commit to the database
@@ -98,7 +98,7 @@ def add_transaction(asset_id : int, transaction_type : str, date : str,
             Quantity: {quantity}
             Price per unit: {price_per_unit}
             Fees (DKK): {fees}
-    To the transactions table.
+To the transactions table.
         """)
 
         # Commit to the database
@@ -139,7 +139,7 @@ def add_price_to_history(asset_id : int, date : str, price : float):
             Asset ID: {asset_id}
             Date: {date}
             Price: {price}
-    To the price_history table.
+To the price_history table.
         """)
 
         # Commit to the database
@@ -188,7 +188,6 @@ def get_all_assets():
         if conn:    
             # Close the connection
             conn.close()
-            print("Database connection closed.")
 
     return assets
 
@@ -228,7 +227,6 @@ def get_all_transactions_for_asset(asset_id : int):
         if conn:    
             # Close the connection
             conn.close()
-            print("Database connection closed.")
 
     return transactions
 
@@ -275,7 +273,6 @@ def get_latest_price(asset_id : int):
         if conn:    
             # Close the connection
             conn.close()
-            print("Database connection closed.")
 
     return price
 
@@ -326,7 +323,7 @@ def get_portfolio_summary():
             holdings_dict[asset_symbol] = {
                 "asset_id" : asset_id,
                 "asset_holdings" : asset_holdings,
-                "asset_type" : asset_type,
+                "asset_type" : asset_type.capitalize(),
                 "latest_price" : asset_latest_price,
                 "asset_currency" : asset_currency,
                 "asset_dkk_price" : asset_dkk_price
@@ -351,3 +348,40 @@ def get_portfolio_value():
                 total_value_dkk += asset_value
 
     return total_value_dkk
+
+def get_asset_id_by_symbol(symbol : str):
+    """Finds an asset's database ID based on its symbol."""
+    
+    conn = get_db_connection()
+    if conn is None:
+        print("Database connection failed.")
+        return None
+    
+    # Initialize return value
+    asset_id = None
+    
+    try:
+        cursor = conn.cursor()
+        
+        # Define select command
+        SELECT_ASSET_ID = """
+        SELECT id FROM assets
+        WHERE symbol = ?;"""
+
+        # Execute the command
+        parameters = (symbol.upper(),)
+        cursor.execute(SELECT_ASSET_ID, parameters)
+
+        result_tuple = cursor.fetchone()
+        
+        if result_tuple:
+            asset_id = result_tuple[0]
+            
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_asset_id_by_symbol: {e}")
+    
+    finally:
+        if conn:
+            conn.close()
+    
+    return asset_id
