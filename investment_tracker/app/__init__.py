@@ -1,4 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    jsonify
+)
 
 from .models import (
     get_portfolio_summary,
@@ -7,7 +14,8 @@ from .models import (
     add_price_to_history,
     add_asset,
     add_transaction,
-    get_asset_id_by_symbol
+    get_asset_id_by_symbol,
+    get_price_history
 )
 
 app = Flask(__name__)
@@ -116,3 +124,24 @@ def handle_add_price():
             print(f"An error occured: {e}")
     
     return redirect(url_for("manage"))
+
+# Data-Only API route
+@app.route("/api/price-history/<int:asset_id>")
+def api_get_price_history(asset_id):
+    """
+    This route is called by JavaScript.
+    Gets the price history for a single asset ID as a JSON object.
+    """
+
+    history_data = get_price_history(asset_id)
+
+    # Convert the data from a list of tuples to JSON
+    formatted_data = []
+    for data in history_data:
+        formatted_data.append({
+            "date" : data[0],
+            "price" : data[1]
+        })
+
+    # Return as JSON
+    return jsonify(formatted_data)

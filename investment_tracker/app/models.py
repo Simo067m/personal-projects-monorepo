@@ -383,3 +383,39 @@ def get_asset_id_by_symbol(symbol : str):
             conn.close()
     
     return asset_id
+
+def get_price_history(asset_id):
+    """Gets all registered prices for a single asset ID"""
+
+    conn = get_db_connection()
+    if conn is None:
+        print("Database connection failed.")
+        return
+    
+    # Initialize return list
+    prices = []
+
+    try:
+        cursor = conn.cursor()
+
+        # Define select command
+        SELECT_PRICE_HISTORY = """
+        SELECT date, price FROM price_history
+        WHERE asset_id = ?
+        ORDER BY date ASC;
+        """
+
+        # Execute the command
+        parameters = (asset_id,)
+        cursor.execute(SELECT_PRICE_HISTORY, parameters)
+
+        prices = cursor.fetchall()
+    
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_price_history: {e}")
+    
+    finally:
+        if conn:
+            conn.close()
+    
+    return prices

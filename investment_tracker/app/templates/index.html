@@ -33,7 +33,16 @@ Total value of holdings: total_value
             {% for symbol, data in holdings.items() %}
             {% set holding_value = none %}
             <tr>
-                <td>{{ symbol }}</td>
+                <!-- Make Symbol clickable to display price history -->
+                <td>
+                    <a href="#"
+                        class="asset-link"
+                        data-asset-id="{{ data.asset_id }}"
+                        data-asset-symbol="{{ symbol }}">
+                        {{ symbol }}
+                    </a>
+                </td>
+
                 <td>{{ "%.2f"|format(data.asset_holdings) }}</td>
 
                 {% if data.asset_dkk_price is not none %}
@@ -71,4 +80,8 @@ Total value of holdings: total_value
             {% endfor %}
         </tbody>
 </table>
+
+<canvas id="priceChart">
+
+</canvas>
 {% endblock %}
