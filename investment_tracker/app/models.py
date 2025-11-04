@@ -17,8 +17,6 @@ def get_db_connection():
     try:
         conn = sqlite3.connect(DB_FILE)
 
-        print("Database connected.")
-
         # Return the connection object
         return conn
 
