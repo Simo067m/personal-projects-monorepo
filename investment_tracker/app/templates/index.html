@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Investment Tracker{% endblock %}
+<!-- 
+Dictionary with holdings data: holdings
+Total value of holdings: total_value
+-->
+{% block content %}
+    <h1>
+        <!-- Total portfolio value in 2 decimals -->
+        Total Portfolio Value: {{ "%.2f"|format(total_value) }} DKK
+    </h1>
+
+    <hr>
+
+    <h2>
+        Current holdings:
+    </h2>
+
+    <table class="holdings-table">
+        <thead>
+            <tr>
+                <th>Asset</th>
+                <th>Shares</th>
+                <th>Latest Price (Local)</th>
+                <th>Latest Price (DKK)</th>
+                <th>Type</th>
+                <th>Holding Value (DKK)</th>
+            </tr> 
+        </thead>
+
+        <tbody>
+            {% for symbol, data in holdings.items() %}
+            {% set holding_value = none %}
+            <tr>
+                <!-- Make Symbol clickable to display price history -->
+                <td>
+                    <a href="#"
+                        class="asset-link"
+                        data-asset-id="{{ data.asset_id }}"
+                        data-asset-symbol="{{ symbol }}">
+                        {{ symbol }}
+                    </a>
+                </td>
+
+                <td>{{ "%.2f"|format(data.asset_holdings) }}</td>
+
+                {% if data.asset_dkk_price is not none %}
+                
+                    <td>
+                        {{ "%.2f"|format(data.latest_price) }} {{ data.asset_currency }}
+                    </td>
+                    
+                    <td>
+                        {{ "%.2f"|format(data.asset_dkk_price) }} DKK
+                    </td>
+                    
+                    <!-- Compute total holdings if price data is available -->
+                    {% set holding_value = data.asset_holdings * data.asset_dkk_price %}
+
+                {% else %}
+                    <!-- If price is None, show N/A across both columns -->
+                    <td class="na" colspan="2">
+                        No price data
+                    </td>
+                {% endif %}
+
+                <td>{{ data.asset_type }}</td>
+
+                {% if holding_value is not none %}
+
+                    <td>{{ "%.2f"|format(holding_value) }} DKK</td>
+                
+                {% else %}
+                    <td class="na">
+                        No price data
+                    </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+</table>
+
+<canvas id="priceChart">
+
+</canvas>
+{% endblock %}

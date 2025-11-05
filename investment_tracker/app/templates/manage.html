@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Portfolio{% endblock %}
+
+{% block content %}
+    <h1>
+        Manage Portfolio
+    </h1>
+
+    <hr>
+
+    <h2>
+        All Tracked Assets:
+    </h2>
+    <!-- assets is a list of tuples of all tracked assets -->
+
+    <table class="holdings-table">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Full Name</th>
+                <th>Type</th>
+                <th>Currency</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for asset in assets %}
+
+            <tr>
+                <td>
+                    <b>{{ asset[1] }}</b>
+                </td>
+                <td>
+                    ({{ asset[2] }})
+                </td>
+                <td>
+                    {{ asset[3].capitalize() }}
+                </td>
+                <td>
+                    {{ asset[4] }}
+                </td>
+            </tr>
+            
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+
+    <!-- Forms for changing the database -->
+
+    <form action="{{ url_for('handle_add_asset') }}" method="POST">
+        <h3>Add New Asset</h3>
+        <label for="asset-symbol">Symbol:</label>
+        <input type="text" name="symbol" id="asset-symbol" placeholder="e.g. WEBN" required>
+
+        <label for="asset-name">Name:</label>
+        <input type="text" name="name" id="asset-name" placeholder="e.g. Novo Nordisk A/S" required>
+
+        <label for="asset-type">Asset Type:</label>
+        <input type="text" name="asset_type" id="asset-type" placeholder="e.g. ETF" required>
+
+        <label for="asset-currency">Currency:</label>
+        <input type="text" name="currency" id="asset-currency" placeholder="e.g. EUR" required>
+
+        <button type="submit">Add Asset</button>
+
+    </form>
+
+    <hr>
+
+    <form action="{{ url_for('handle_add_transaction') }}" method="POST">
+        <h3>Add New Transaction</h3>
+        
+        <label for="trans-symbol">Symbol:</label>
+        <input type="text" name="symbol" id="trans-symbol" placeholder="e.g. WEBN" required>
+        
+        <label for="trans-type">Type:</label>
+        <select name="transaction_type" id="trans-type">
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+        </select>
+        
+        <label for="trans-date">Date:</label>
+        <input type="date" name="date" id="trans-date" required>
+        
+        <label for="trans-qty">Quantity (Shares):</label>
+        <input type="number" step="0.000001" name="quantity" id="trans-qty" required>
+        
+        <label for="trans-price">Price per Unit (in local currency):</label>
+        <input type="number" step="0.01" name="price_per_unit" id="trans-price" required>
+        
+        <label for="trans-fees">Fees (in DKK):</label>
+        <input type="number" step="0.01" name="fees" id="trans-fees" value="0.0" required>
+        
+        <button type="submit">Add Transaction</button>
+    </form>
+
+    <hr>
+
+    <form action="{{ url_for('handle_add_price') }}" method="POST">
+        <h3>Add New EOD Price</h3>
+        
+        <label for="price-symbol">Symbol:</label>
+        <input type="text" name="symbol" id="price-symbol" placeholder="e.g. WEBN" required>
+        
+        <label for="price-date">Date:</label>
+        <input type="date" name="date" id="price-date" required>
+        
+        <label for="price-price">Price (in local currency):</label>
+        <input type="number" step="0.01" name="price" id="price-price" required>
+        
+        <button type="submit">Add Price</button>
+    </form>
+
+    <hr>
+
+{% endblock %}

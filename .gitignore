@@ -55,6 +55,12 @@ cover/
 *.mo
 *.pot
 
+# Local Database
+# Ignore personal databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Django stuff:
 *.log
 local_settings.py
@@ -205,3 +211,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Config file
+config.py
