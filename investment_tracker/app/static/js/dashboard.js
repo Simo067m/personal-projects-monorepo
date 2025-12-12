@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Debugging: Check if we actually found any links
     if (assetLinks.length === 0) {
-        console.warn("No .asset-link elements found. Check your HTML!");
+        console.warn("No .asset-link elements found.");
     }
 
     assetLinks.forEach(link => {
@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const assetId = e.target.dataset.assetId;
             const assetSymbol = e.target.dataset.assetSymbol;
             
-            console.log(`Fetching chart for: ${assetSymbol} (ID: ${assetId})`);
             fetchAndDrawChart(assetId, assetSymbol);
         });
     });
@@ -25,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchAndDrawChart(assetId, assetSymbol) {
     try {
-        // FIX: Added the '/investments' prefix to match run.py
         const response = await fetch(`/investments/api/price-history/${assetId}`);
 
         if (!response.ok) {
@@ -34,9 +32,6 @@ async function fetchAndDrawChart(assetId, assetSymbol) {
         }
 
         const priceHistory = await response.json();
-        
-        // Debugging: See what data came back
-        console.log("Data received:", priceHistory);
 
         if (priceHistory.length === 0) {
             alert("No price history found for this asset.");
@@ -60,7 +55,6 @@ function renderChart(labels, data, symbol) {
 
     const chartCanvas = document.getElementById("priceChart");
     
-    // Safety check: Does the canvas exist on the page?
     if (!chartCanvas) {
         console.error("Canvas element 'priceChart' not found in HTML.");
         return;
@@ -73,10 +67,10 @@ function renderChart(labels, data, symbol) {
         data: {
             labels: labels,
             datasets: [{
-                label: `${symbol} Price`, // Use the symbol in the label
+                label: `${symbol} Price`,
                 data: data,
                 borderColor: '#007bff',
-                tension: 0.1, // Makes the line slightly smoother
+                tension: 0.1, 
                 fill: false
             }]
         },
