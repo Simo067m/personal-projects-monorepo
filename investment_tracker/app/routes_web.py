@@ -20,7 +20,7 @@ from .db import (
 )
 
 # Define the blueprint
-web = Blueprint('investment', __name__,
+web = Blueprint('investment_web', __name__,
                 template_folder='templates',
                 static_folder='static')
 

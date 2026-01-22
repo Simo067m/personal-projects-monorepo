@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify
 from .db import get_price_history
 
 # Define the blueprint
-api = Blueprint('investment_tracker_api', __name__)
+api = Blueprint('investment_api', __name__)
 
 @api.route("/price-history/<int:asset_id>")
 def get_history(asset_id):
