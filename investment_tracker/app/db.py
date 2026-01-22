@@ -261,6 +261,7 @@ def get_portfolio_summary():
     for asset in all_assets:
         asset_id = asset[0]
         asset_symbol = asset[1]
+        asset_name = asset[2]
         asset_type = asset[3]
         asset_currency = asset[4]
 
@@ -282,7 +283,8 @@ def get_portfolio_summary():
                 "asset_type" : asset_type.capitalize(),
                 "latest_price" : asset_latest_price,
                 "asset_currency" : asset_currency,
-                "asset_dkk_price" : asset_dkk_price
+                "asset_dkk_price" : asset_dkk_price,
+                "asset_name" : asset_name
             }
     
     return holdings_dict

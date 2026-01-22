@@ -11,7 +11,7 @@ def home():
 @portal_bp.route('/api/system_status')
 def system_status():
     # CPU
-    cpu_percent = psutil.cpu_percent(interval=None)
+    cpu_percent = psutil.cpu_percent(interval=0.1)
     
     # Memory
     memory = psutil.virtual_memory()

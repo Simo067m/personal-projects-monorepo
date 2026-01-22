@@ -1,51 +1,293 @@
-.holdings-table {
-    width: 100%;
-    border-collapse: separate; /* Allows for rounded corners if needed */
-    border-spacing: 0;
-    margin-top: 10px;
+/* Unique Investment Accents */
+:root {
+    --accent-investment: #4ade80; /* A soft emerald for money */
+    --loss-color: #f87171;
+    --card-glass: rgba(255, 255, 255, 0.03);
 }
 
-.holdings-table th {
-    text-align: left;
-    padding: 12px 16px;
-    
-    /* Use the Global Dark Theme variables */
-    color: var(--text-muted); 
-    border-bottom: var(--border-glass);
+/* Re-styling the investment container */
+.investment-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: minmax(120px, auto);
+    gap: 16px;
+    padding-bottom: 40px;
+}
+
+/* Hero Stat Card */
+.stat-card {
+    grid-column: span 12;
+    background: linear-gradient(135deg, var(--card-bg) 0%, #1a1a1a 100%);
+    border: 1px solid var(--border-bright);
+    padding: 32px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-value {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    color: var(--accent-investment);
+}
+
+/* Asset Bento Tiles */
+.asset-tile {
+    grid-column: span 4; /* 3 per row */
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.asset-tile:hover {
+    border-color: var(--accent-investment);
+    transform: translateY(-2px);
+}
+
+.asset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.asset-symbol {
+    font-family: var(--mono-font);
+    font-size: 18px;
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
 }
 
-.holdings-table td {
-    padding: 12px 16px;
-    
-    /* Use the Global Dark Theme variables */
-    color: var(--text-main);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle separator */
+.asset-type-pill {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: var(--card-glass);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
 }
 
-/* Hover effect for rows */
-.holdings-table tr:hover td {
-    background-color: var(--bg-hover);
-}
-
-/* Special styling for "N/A" text */
-.holdings-table .na {
-    text-align: center;
-    color: var(--text-muted); /* Grey instead of #888 hardcode */
-    font-style: italic;
-}
-
-/* Links inside the table */
-.asset-link {
-    color: var(--accent-primary);
-    text-decoration: none;
+.asset-price-main {
+    margin-top: 15px;
+    font-size: 20px;
     font-weight: 500;
-    transition: color 0.2s;
 }
 
-.asset-link:hover {
-    color: white;
-    text-decoration: underline;
+.asset-price-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Chart Container Card */
+.chart-card {
+    grid-column: span 12;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    min-height: 400px;
+}
+
+/* Custom Scrollbar for the grid if needed */
+@media (max-width: 1024px) {
+    .asset-tile { grid-column: span 6; }
+}
+@media (max-width: 600px) {
+    .asset-tile { grid-column: span 12; }
+}
+
+/* --- Form & Input Styling --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* --- The Form Card: Visuals + Layout --- */
+.form-card {
+    background: var(--card-bg);
+    /* Ensure the border is defined here so inline styles can override color */
+    border: 1px solid var(--border); 
+    border-radius: 12px;
+    padding: 24px;
+    
+    /* Structural Rules for Alignment */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Force the form to fill the card so the button can go to the bottom */
+.form-card form {
+    display: flex;
+    flex-direction: column;
+    flex: 1; 
+}
+
+/* The magic class for the buttons */
+.mt-auto {
+    margin-top: auto !important;
+}
+
+/* Make sure the green border is extra "awesome" */
+.form-card[style*="border-color"] {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Adds some depth to the special card */
+}
+
+.input-group {
+    margin-bottom: 16px;
+}
+
+.input-group label {
+    display: block;
+    font-family: var(--mono-font);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+/* The Fix for the "Jarring White" fields */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    background: #050505; /* Deep black */
+    border: 1px solid var(--border-bright);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text-main);
+    font-family: var(--mono-font);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    border-color: var(--accent-investment);
+}
+
+/* Quick-select tags for easier entry */
+.preset-container {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.preset-tag {
+    font-size: 10px;
+    background: var(--border);
+    color: var(--text-muted);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.2s;
+}
+
+.preset-tag:hover {
+    border-color: var(--text-muted);
+    color: var(--text-main);
+}
+
+.btn-submit {
+    width: 100%;
+    background: var(--text-main);
+    color: #000;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: opacity 0.2s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
+/* Final "Dark Mode" Input Fix */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+    background-color: #050505 !important; /* Extremely dark */
+    color: #ffffff !important;           /* Pure white text */
+    border: 1px solid #222 !important;   /* Subtle border */
+    border-radius: 6px;
+    padding: 12px;
+    font-family: var(--mono-font);
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+}
+
+/* Make them glow when you click them */
+input:focus, select:focus {
+    border-color: var(--accent-investment) !important;
+    box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.1); 
+}
+
+/* Fix for Chrome's forced autofill colors */
+input:-webkit-autofill {
+    -webkit-text-fill-color: white !important;
+    -webkit-box-shadow: 0 0 0px 1000px #050505 inset !important;
+}
+
+/* Fix the calendar icon for the date field */
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.5;
+}
+
+.holdings-table thead th {
+    text-align: left;
+    /* Move the border to the TH elements */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    padding-bottom: 12px; /* Add some space so the text doesn't touch the line */
+    color: var(--text-muted);
+    font-family: var(--mono-font);
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* --- Inventory Table Hover Effects --- */
+
+/* 1. Set the transition for smooth fading */
+.holdings-table tbody tr {
+    transition: background-color 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+}
+
+/* 2. Highlight the row on hover */
+.holdings-table tbody tr:hover {
+    /* Use a slightly lighter version of the card background or a glass effect */
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* 3. Subtle "pop" for the symbol when hovering the row */
+.holdings-table tbody tr:hover td:first-child {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.4); /* Subtle green glow */
+}
+
+/* 4. Ensure the cells look clean during hover */
+.holdings-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
 }

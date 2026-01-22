@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global_style.css') }}">
+
+    {% block app_styles %}{% endblock %}
+    {% block app_scripts %}{% endblock %}
 </head>
 <body>
 
@@ -14,20 +17,5 @@
     </nav>
 
     {% block content %}{% endblock %}
-
-    <!-- Your existing JS for system status remains exactly the same! -->
-    <script>
-        function updateSystemStatus() {
-            fetch('/api/system_status') 
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById('cpu-usage').innerText = data.cpu_usage.toFixed(1) + '%';
-                    document.getElementById('memory-usage').innerText = data.memory_usage.toFixed(1) + '%';
-                    document.getElementById('cpu-temp').innerText = data.cpu_temp !== "N/A" ? data.cpu_temp + '°C' : 'N/A';
-                });
-        }
-        setInterval(updateSystemStatus, 2000);
-        updateSystemStatus();
-    </script>
 </body>
 </html>

@@ -59,7 +59,7 @@ def handle_add_asset():
 
     if not (symbol and name and asset_type and currency):
         flash("All fields are required to add an asset.", "warning")
-        return redirect(url_for("investment.manage"))
+        return redirect(url_for("investment_web.manage"))
 
     try:
         if get_asset_id_by_symbol(symbol):
@@ -71,7 +71,7 @@ def handle_add_asset():
     except Exception as e:
         flash(f"Database error: {e}", "error")
     
-    return redirect(url_for("investment.manage"))
+    return redirect(url_for("investment_web.manage"))
 
 @web.route("/add-transaction", methods=["POST"])
 def handle_add_transaction():
@@ -88,7 +88,7 @@ def handle_add_transaction():
 
     if not (symbol and transaction_type and date and raw_qty and raw_price):
         flash("Missing required fields.", "warning")
-        return redirect(url_for("investment.manage"))
+        return redirect(url_for("investment_web.manage"))
 
     try:
         # Data Conversion
@@ -99,7 +99,7 @@ def handle_add_transaction():
         asset_id = get_asset_id_by_symbol(symbol)
         if not asset_id:
             flash(f"Asset '{symbol}' not found. Please create it first.", "error")
-            return redirect(url_for("investment.manage"))
+            return redirect(url_for("investment_web.manage"))
 
         add_transaction(asset_id, transaction_type, date, quantity, price, fees)
         flash(f"Recorded {transaction_type} for {symbol}.", "success")
@@ -111,7 +111,7 @@ def handle_add_transaction():
         # Catches Database errors
         flash(f"System error: {e}", "error")
     
-    return redirect(url_for("investment.manage"))
+    return redirect(url_for("investment_web.manage"))
 
 @web.route("/add-price", methods=["POST"])
 def handle_add_price():
@@ -122,7 +122,7 @@ def handle_add_price():
 
     if not (symbol and date and raw_price):
         flash("Symbol, Date, and Price are required.", "warning")
-        return redirect(url_for("investment.manage"))
+        return redirect(url_for("investment_web.manage"))
 
     try:
         price = float(raw_price)
@@ -130,7 +130,7 @@ def handle_add_price():
 
         if not asset_id:
             flash(f"Asset '{symbol}' not found.", "error")
-            return redirect(url_for("investment.manage"))
+            return redirect(url_for("investment_web.manage"))
 
         add_price_to_history(asset_id, date, price)
         flash(f"Price updated for {symbol}.", "success")
@@ -143,4 +143,4 @@ def handle_add_price():
         else:
             flash(f"Error: {e}", "error")
 
-    return redirect(url_for("investment.manage"))
+    return redirect(url_for("investment_web.manage"))

@@ -8,11 +8,10 @@
 {% endblock %}
 
 {% block content %}
-    <div class="investment-nav-bar" style="background: #f0f0f0; padding: 10px; margin-bottom: 20px; border-bottom: 2px solid #ccc;">
-        <strong>Investment App:</strong>
-        <a href="{{ url_for('investment_web.index') }}" style="margin-right: 15px;">Dashboard</a>
-        <a href="{{ url_for('investment_web.manage') }}">Manage Portfolio</a>
-    </div>
+    <div class="investment-nav-bar" style="padding: 10px 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+    <a href="{{ url_for('investment_web.index') }}" class="card-label" style="text-decoration:none; margin-right: 20px;">Dashboard</a>
+    <a href="{{ url_for('investment_web.manage') }}" class="card-label" style="text-decoration:none;">Manage</a>
+</div>
 
     <main>
         {% block investment_content %}{% endblock %}
@@ -20,5 +19,6 @@
 {% endblock %}
 
 {% block app_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('investment_web.static', filename='js/dashboard.js') }}"></script>
 {% endblock %}
