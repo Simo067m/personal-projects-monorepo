@@ -1,14 +1,9 @@
-{% extends "base.html" %}
+{% extends "investment/base.html" %}
 
-{% block title %}Investment Tracker{% endblock %}
-<!-- 
-Dictionary with holdings data: holdings
-Total value of holdings: total_value
--->
-{% block content %}
+{% block investment_content %}
     <h1>
         <!-- Total portfolio value in 2 decimals -->
-        Total Portfolio Value: {{ "%.2f"|format(total_value) }} DKK
+        Total Portfolio Value: {{ "%.2f"|format(total_value_dkk) }} DKK
     </h1>
 
     <hr>
@@ -84,4 +79,4 @@ Total value of holdings: total_value
 <canvas id="priceChart">
 
 </canvas>
-{% endblock %}
+    {% endblock %}
