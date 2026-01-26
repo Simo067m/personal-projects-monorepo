@@ -18,9 +18,12 @@
         <canvas id="priceChart"></canvas>
     </div>
 </div>
-<div class="stat-card">
-    TODO: Current holdings (This is supposed to be a title signifying that the section
-    below contains individual asset tiles, update me to make me look nicer.)
+<div style="grid-column: span 12; border-bottom: 1px solid var(--border); margin-top: 20px;">
+    <div class="card-label">Inventory</div>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 5px;">
+    <div class="card-title" style="margin: 0;">Current Holdings</div>
+    <div class="asset-type-pill" style="margin: 0;">{{ holdings|length }} Assets</div>
+    </div>
 </div>
         <!-- Asset Grid (Unique Bento Tiles) -->
         {% for symbol, data in holdings.items() %}

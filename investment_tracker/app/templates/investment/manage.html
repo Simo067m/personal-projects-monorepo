@@ -81,7 +81,7 @@
             </form>
         </div>
 
-        <!-- 3. ADD EOD PRICE (THE RETURNED FORM) -->
+        <!-- 3. ADD EOD PRICE -->
         <div class="form-card w-third" style="border-color: var(--accent-investment);">
             <div class="card-label" style="color: var(--accent-investment);">Market Data</div>
             <h3 class="card-title">Manual EOD Update</h3>
@@ -107,7 +107,7 @@
     <!-- ASSET LIST (With Auto-Fill Helper) -->
     <div class="portal-column w-full" style="margin-top: 20px; grid-auto-rows: auto;">
         <div class="bento-card w-full">
-            <div class="card-label">Inventory / Click Symbol to Update Price</div>
+            <div class="card-label">Tracked Assets / Click Symbol to Update Price</div>
             <table class="holdings-table">
                 <thead>
                     <tr>
@@ -115,10 +115,12 @@
                         <th>Name</th>
                         <th>Type</th>
                         <th>Currency</th>
+                        <th style="text-align: right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for asset in assets %}
+                    <!-- asset[0] is the ID, asset[1] is the Symbol -->
                     <tr onclick="fillPriceForm('{{ asset[1] }}')" style="cursor: pointer;">
                         <td style="font-family: var(--mono-font); color: var(--accent-investment); font-weight: bold;">
                             {{ asset[1] }}
@@ -126,6 +128,18 @@
                         <td>{{ asset[2] }}</td>
                         <td><span class="asset-type-pill">{{ asset[3] }}</span></td>
                         <td>{{ asset[4] }}</td>
+                        <td style="text-align: right;">
+                            <form action="{{ url_for('investment_web.handle_delete_asset', asset_id=asset[0]) }}" method="POST" 
+                                  onsubmit="return confirm('Are you sure? This will delete all history for {{ asset[1] }}.');"
+                                  style="display: inline;">
+                                <!-- stopPropagation prevents the row-click (fillPriceForm) from firing -->
+                                <button type="submit" 
+                                        onclick="event.stopPropagation()" 
+                                        style="background: none; border: none; color: var(--loss-color); cursor: pointer; font-size: 12px; font-family: var(--mono-font); opacity: 0.6;">
+                                    [DEL]
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -16,7 +16,8 @@ from .db import (
     get_asset_id_by_symbol,
     add_asset,
     add_transaction,
-    add_price_to_history
+    add_price_to_history,
+    delete_asset_by_id
 )
 
 # Define the blueprint
@@ -143,4 +144,15 @@ def handle_add_price():
         else:
             flash(f"Error: {e}", "error")
 
+    return redirect(url_for("investment_web.manage"))
+
+@web.route("/delete-asset/<int:asset_id>", methods=["POST"])
+def handle_delete_asset(asset_id):
+    """Handles deleting an asset from the database."""
+    try:
+        delete_asset_by_id(asset_id)
+        flash("Asset deleted successfully.", "success")
+    except Exception as e:
+        flash(f"Error deleting asset: {e}", "error")
+    
     return redirect(url_for("investment_web.manage"))

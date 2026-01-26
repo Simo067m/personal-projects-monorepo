@@ -347,3 +347,28 @@ def get_price_history(asset_id):
     
     except sqlite3.Error as e:
         print(f"An error occurred in get_price_history: {e}")
+
+def delete_asset_by_id(asset_id : int):
+    """
+    Deletes an asset and all assosiated transactions and price history.
+    """
+
+    DELETE_TRANSACTIONS = "DELETE FROM transactions WHERE asset_id = ?;"
+    DELETE_PRICES = "DELETE FROM price_history WHERE asset_id = ?;"
+    DELETE_ASSET = "DELETE FROM assets WHERE id = ?;"
+
+    try: 
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            parameters = (asset_id,)
+            cursor.execute(DELETE_TRANSACTIONS, parameters)
+            cursor.execute(DELETE_PRICES, parameters)
+            cursor.execute(DELETE_ASSET, parameters)
+
+            conn.commit()
+            print(f"Deleted asset ID {asset_id} and all associated records.")
+    
+    except sqlite3.Error as e:
+        print(f"An error occurred in delete_asset_by_id: {e}")
+        raise e
