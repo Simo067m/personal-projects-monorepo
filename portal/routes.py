@@ -6,28 +6,12 @@ portal_bp = Blueprint('portal', __name__)
 
 @portal_bp.route("/")
 def home():
-    my_apps = [
-        {
-            "name": "Investment Tracker",
-            "description": "Manage portfolio, view graphs, and track assets.",
-            "endpoint": "investment_web.index", 
-            "status": "active",
-            "style": "primary"
-        },
-        {
-            "name": "Crypto Bot",
-            "description": "Automated trading algorithms.",
-            "endpoint": "", 
-            "status": "disabled",
-            "style": "secondary"
-        }
-    ]
-    return render_template("portal_home.html", apps=my_apps)
+    return render_template("portal_home.html")
 
 @portal_bp.route('/api/system_status')
 def system_status():
     # CPU
-    cpu_percent = psutil.cpu_percent(interval=None)
+    cpu_percent = psutil.cpu_percent(interval=0.1)
     
     # Memory
     memory = psutil.virtual_memory()

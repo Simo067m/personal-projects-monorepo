@@ -1,107 +1,102 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - Home{% endblock %}
-
 {% block content %}
-<div class="row text-center">
-    
-    <div class="col-12 mb-5">
-        <h1 class="display-4">Welcome Home</h1>
-        <p class="lead">Select an application to launch</p>
-    </div>
-
-    {% for app in apps %}
-    <div class="col-md-6 mb-4">
-        
-        <div class="card shadow-sm h-100 border-{{ app.style }}">
-            <div class="card-body d-flex flex-column justify-content-center">
-                
-                <h2 class="card-title text-{{ app.style }}">{{ app.name }}</h2>
-                <p class="card-text">{{ app.description }}</p>
-                
-                {% if app.status == 'active' %}
-                    <a href="{{ url_for(app.endpoint) }}" class="btn btn-{{ app.style }} btn-lg mt-3 pop-hover">
-                        Open App
-                    </a>
-                
-                {% else %}
-                    <div class="alert alert-warning mt-2">
-                        Under Construction
-                    </div>
-                    <button class="btn btn-{{ app.style }} btn-lg mt-3" disabled>Coming Soon</button>
-                {% endif %}
-                
-            </div>
-        </div>
-    </div>
-    {% endfor %} 
-    </div>
-
-<div class="row mt-5">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                System Status
-                <span class="badge bg-success rounded-pill float-end" style="font-size: 0.6em;">LIVE</span>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    
-                    <div class="col-md-4">
-                        <h5 class="text-muted">CPU Usage</h5>
-                        <h3 id="cpu-usage">Loading...</h3>
-                    </div>
-
-                    <div class="col-md-4">
-                        <h5 class="text-muted">RAM Usage</h5>
-                        <h3 id="memory-usage">Loading...</h3>
-                    </div>
-
-                    <div class="col-md-4">
-                        <h5 class="text-muted">Temp</h5>
-                        <h3 id="cpu-temp">Loading...</h3>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
+<div style="padding-top: 60px; text-align: center; margin-bottom: 40px;">
+    <h1 style="font-weight: 400; font-size: 32px; letter-spacing: -0.04em;">Portal</h1>
 </div>
+
+<div class="portal-container">
+    
+    <!-- LEFT COLUMN: Custom width modules -->
+    <div class="portal-column">
+        
+        <!-- Investment Tracker: Full width of the left column -->
+        <div class="bento-card w-full">
+            <div>
+                <div class="card-label">Application / 01</div>
+                <h2 class="card-title">Investment Tracker</h2>
+                <p class="card-desc">Portfolio Management and Asset Performance Tracking.</p>
+            </div>
+            <a href="{{ url_for('investment_web.index') }}" class="btn-minimal">Launch Dashboard</a>
+        </div>
+
+        <div class="bento-card w-9">
+            <div>
+                <div class="card-label">Application / 02</div>
+                <h2 class="card-title">Health and Fitness Tracker</h2>
+                <p class="card-desc" style="opacity: 0.5;">Track Weight, Exercise, and Nutrition.</p>
+            </div>
+            <span class="card-label" style="margin-top: 20px; display: block;">Under Development</span>
+        </div>
+
+        <div class="bento-card w-9">
+            <div>
+                <div class="card-label">Application / 03</div>
+                <h2 class="card-title">Smart Home</h2>
+                <p class="card-desc" style="opacity: 0.5;">Control Home Devices and Automation.</p>
+            </div>
+            <span class="card-label" style="margin-top: 20px; display: block;">Under Development</span>
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Stacked modules -->
+    <div class="portal-column">
+        
+        <!-- System Status: Full width of the right column -->
+        <div class="bento-card w-full">
+            <div class="card-label">Infrastructure</div>
+            <h2 class="card-title">System</h2>
+            
+            <div class="status-item">
+                <span class="card-label" style="margin:0;">CPU</span>
+                <span id="cpu-usage" class="status-value">--</span>
+            </div>
+            <div class="status-item">
+                <span class="card-label" style="margin:0;">RAM</span>
+                <span id="memory-usage" class="status-value">--</span>
+            </div>
+            <div class="status-item">
+                <span class="card-label" style="margin:0;">TEMP</span>
+                <span id="cpu-temp" class="status-value">--</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block app_scripts %}
 <script>
     function updateSystemStatus() {
-        // 1. Fetch data from the new Blueprint route
+        const cpuElem = document.getElementById('cpu-usage');
+        const memElem = document.getElementById('memory-usage');
+        const tempElem = document.getElementById('cpu-temp');
+
+        // Safety check: Only fetch and update if the elements exist on this page
+        if (!cpuElem || !memElem || !tempElem) return;
+
         fetch('/api/system_status') 
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
+            .then(res => {
+                if (!res.ok) throw new Error("Network error");
+                return res.json();
             })
             .then(data => {
-                // 2. Update the HTML elements with new numbers
-                // checks if element exists to avoid errors on other pages
-                const cpuEl = document.getElementById('cpu-usage');
-                const memEl = document.getElementById('memory-usage');
-                const tempEl = document.getElementById('cpu-temp');
-
-                if (cpuEl) cpuEl.innerText = data.cpu_usage + '%';
-                if (memEl) memEl.innerText = data.memory_usage + '%';
-                
-                if (tempEl) {
-                    if (data.cpu_temp === "N/A") {
-                        tempEl.innerText = "N/A";
-                    } else {
-                        tempEl.innerText = data.cpu_temp + '°C';
-                    }
-                }
+                cpuElem.innerText = data.cpu_usage.toFixed(1) + '%';
+                memElem.innerText = data.memory_usage.toFixed(1) + '%';
+                tempElem.innerText = data.cpu_temp !== "N/A" ? data.cpu_temp + '°C' : 'N/A';
             })
-            .catch(error => console.error('Error fetching status:', error));
+            .catch(err => console.warn("System API currently unavailable"));
     }
 
-    // 3. Run this function every 2000 milliseconds (2 seconds)
-    setInterval(updateSystemStatus, 2000);
-    
-    // 4. Run it once immediately
+    // Start the loop
+    const statusInterval = setInterval(updateSystemStatus, 10000);
     updateSystemStatus();
+
+    // Clean up when the user leaves the page (optional but good practice)
+    window.addEventListener('beforeunload', () => {
+        clearInterval(statusInterval);
+    });
 </script>
 {% endblock %}
