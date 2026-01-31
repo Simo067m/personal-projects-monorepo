@@ -27,11 +27,11 @@ app.register_blueprint(portal_bp)
 app.register_blueprint(investment_web, url_prefix="/investments")
 app.register_blueprint(investment_api, url_prefix="/investments/api")
 
+# Check database configuration
+investment_db.initialize_database()
+
 if __name__ == "__main__":
     # Check database configuration
     investment_db.initialize_database()
 
     app.run(debug=True, port=5000)
-
-    # When launching on pi
-    # app.run(host='0.0.0.0', port=5000)
