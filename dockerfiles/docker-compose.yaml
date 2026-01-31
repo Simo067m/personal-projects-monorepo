@@ -1,0 +1,14 @@
+services:
+  monorepo:
+    container_name: portal_os
+    build: .
+    restart: always  # <--- This ensures it starts when Pi boots!
+    ports:
+      - "5000:5000"
+    volumes:
+      # PERSISTENCE: Map the instance folder out so the DB survives updates
+      - ./instance:/app/instance
+      # CONFIG: Map your secret config file into the container
+      - ./config.py:/app/config.py
+    environment:
+      - FLASK_ENV=production
