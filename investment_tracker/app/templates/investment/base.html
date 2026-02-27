@@ -10,7 +10,8 @@
 {% block content %}
     <div class="investment-nav-bar" style="padding: 10px 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
     <a href="{{ url_for('investment_web.index') }}" class="card-label" style="text-decoration:none; margin-right: 20px;">Dashboard</a>
-    <a href="{{ url_for('investment_web.manage') }}" class="card-label" style="text-decoration:none;">Manage</a>
+    <a href="{{ url_for('investment_web.manage') }}" class="card-label" style="text-decoration:none; margin-right: 20px">Manage</a>
+    <a href="{{ url_for('investment_web.history')}}" class="card-label" style="text-decoration:none; margin-right: 20px;">History</a>
 </div>
 
     <main>

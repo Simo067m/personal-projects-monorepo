@@ -1,0 +1,45 @@
+{% extends "investment/base.html" %}
+
+{% block investment_content %}
+<div class="portal-container">
+    <div style="grid-column: span 12; margin-bottom: 20px;">
+        <h1 style="font-weight: 400; letter-spacing: -0.02em;">Transaction History</h1>
+        <p class="card-desc">Review your past trades and transactions.</p>
+    </div>
+
+    <div class="transaction-table-container">
+        <table class="transaction-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Symbol</th>
+                    <th>Asset Type</th>
+                    <th>Quantity</th>
+                    <th>Price Per Unit</th>
+                    <th>Total Price</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for txn in transactions %}
+                <tr>
+                    <td>
+                        <span class="txn-type {% if txn.transaction_type|lower == 'buy' %}buy{% elif txn.transaction_type|lower == 'sell' %}sell{% endif %}">
+                            {{ txn.transaction_type }}
+                        </span>
+                    </td>
+                    <td>{{ txn.date }}</td>
+                    <td>{{ txn.symbol }}</td>
+                    <td>{{ txn.asset_type }}</td>
+                    <td>{{ "%.1f"|format(txn.quantity) }}</td>
+                    <td>{{ "%.2f"|format(txn.price_per_unit) }} {{ txn.currency }}</td>
+                    <td>{{ "%.2f"|format(txn.total_price) }} {{ txn.currency }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
