@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Health Tracker{% endblock %}
+
+{% block app_styles %}
+    <link rel="stylesheet" href="{{ url_for('health_web.static', filename='css/style.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="health-nav-bar" style="padding: 10px 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+    <a href="{{ url_for('health_web.index') }}" class="card-label" style="text-decoration:none; margin-right: 20px;">Health</a>
+    <a href="{{ url_for('health_web.index') }}" class="card-label" style="text-decoration:none;">Nutrition</a>
+</div>
+
+    <main>
+        {% block health_content %}{% endblock %}
+    </main>
+{% endblock %}

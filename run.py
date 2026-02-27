@@ -10,6 +10,7 @@ from flask import Flask, render_template, jsonify
 from portal.routes import portal_bp as portal_bp
 from investment_tracker.app.routes_web import web as investment_web
 from investment_tracker.app.routes_api import api as investment_api
+from health_tracker.app.routes_web import web as health_web
 
 # Import database modules
 from investment_tracker.app import db as investment_db
@@ -26,6 +27,7 @@ app.secret_key = config.FLASK_SECRET
 app.register_blueprint(portal_bp)
 app.register_blueprint(investment_web, url_prefix="/investments")
 app.register_blueprint(investment_api, url_prefix="/investments/api")
+app.register_blueprint(health_web, url_prefix="/health")
 
 # Wrap the initialization in the app context so it knows WHERE to create the DB.
 with app.app_context():
