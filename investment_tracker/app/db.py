@@ -372,3 +372,41 @@ def delete_asset_by_id(asset_id : int):
     except sqlite3.Error as e:
         print(f"An error occurred in delete_asset_by_id: {e}")
         raise e
+
+def get_all_transactions():
+    """Gets all transactions in the database, sorted by date descending."""
+
+    SELECT_ALL_TRANSACTIONS = """
+    SELECT transactions.id, assets.symbol, transactions.transaction_type,
+    transactions.date, transactions.quantity, transactions.price_per_unit,
+    transactions.fees, assets.asset_type, assets.currency
+    FROM transactions
+    JOIN assets ON transactions.asset_id = assets.id
+    ORDER BY transactions.date DESC;
+    """
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(SELECT_ALL_TRANSACTIONS)
+            rows = cursor.fetchall()
+
+            return [
+                {
+                    "id": row[0],
+                    "symbol": row[1],
+                    "transaction_type": row[2],
+                    "date": row[3],
+                    "quantity": row[4],
+                    "price_per_unit": row[5],
+                    "fees": row[6],
+                    "asset_type": row[7],
+                    "currency": row[8],
+                    "total_price": row[4] * row[5] + row[6] if row[2] == "buy" else row[4] * row[5]
+                }
+                for row in rows
+            ]
+
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_all_transactions: {e}")
+        return []

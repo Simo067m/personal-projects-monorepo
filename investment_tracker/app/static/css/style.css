@@ -293,3 +293,74 @@ input:-webkit-autofill {
 .holdings-table td {
     border-bottom: 1px solid rgba(255, 255, 255, 0.02);
 }
+
+/* --- Transaction Table Styling --- */
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+}
+
+.transaction-table thead th {
+    text-align: left;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding: 12px;
+    color: var(--text-muted);
+    font-family: var(--mono-font);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.transaction-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.transaction-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.transaction-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    font-size: 14px;
+}
+
+.transaction-table .status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--card-glass);
+    border: 1px solid var(--border);
+}
+
+.transaction-table .status-badge.buy {
+    color: var(--accent-investment);
+    border-color: var(--accent-investment);
+}
+
+.transaction-table .status-badge.sell {
+    color: var(--loss-color);
+    border-color: var(--loss-color);
+}
+
+.txn-type {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+.txn-type.buy {
+    color: #137333;
+    background: #e6f4ea;
+}
+
+.txn-type.sell {
+    color: #a50e0e;
+    background: #fce8e6;
+}

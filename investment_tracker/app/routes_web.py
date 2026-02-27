@@ -17,7 +17,8 @@ from .db import (
     add_asset,
     add_transaction,
     add_price_to_history,
-    delete_asset_by_id
+    delete_asset_by_id,
+    get_all_transactions
 )
 
 # Define the blueprint
@@ -156,3 +157,9 @@ def handle_delete_asset(asset_id):
         flash(f"Error deleting asset: {e}", "error")
     
     return redirect(url_for("investment_web.manage"))
+
+@web.route("/history")
+def history():
+    """Displays the transaction history."""
+    transactions = get_all_transactions()
+    return render_template("investment/history.html", transactions=transactions)
