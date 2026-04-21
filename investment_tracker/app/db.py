@@ -252,11 +252,7 @@ def calculate_holdings(asset_id : int):
     return total_holdings
 
 def get_portfolio_summary():
-    """Gets a summary of all current holdings.
-
-    Uses a single SQL query with GROUP BY and a LEFT JOIN subquery for the
-    latest price to avoid the N+1 query problem.
-    """
+    """Gets a summary of all current holdings."""
 
     PORTFOLIO_SUMMARY_QUERY = """
     SELECT
