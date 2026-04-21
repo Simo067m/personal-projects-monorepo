@@ -265,7 +265,7 @@ def get_portfolio_summary():
         a.name,
         a.asset_type,
         a.currency,
-        SUM(CASE WHEN t.transaction_type = 'buy' THEN t.quantity ELSE -t.quantity END) AS holdings,
+        SUM(CASE WHEN t.transaction_type = 'buy' THEN COALESCE(t.quantity, 0) ELSE -COALESCE(t.quantity, 0) END) AS holdings,
         ph.price      AS latest_price
     FROM assets a
     JOIN transactions t ON t.asset_id = a.id
@@ -278,7 +278,7 @@ def get_portfolio_summary():
             GROUP BY asset_id
         ) ph2 ON ph1.asset_id = ph2.asset_id AND ph1.date = ph2.max_date
     ) ph ON ph.asset_id = a.id
-    GROUP BY a.id, a.symbol, a.name, a.asset_type, a.currency, ph.price
+    GROUP BY a.id, a.symbol, a.name, a.asset_type, a.currency
     HAVING holdings > 0;
     """
 
