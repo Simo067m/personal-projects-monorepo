@@ -252,42 +252,64 @@ def calculate_holdings(asset_id : int):
     return total_holdings
 
 def get_portfolio_summary():
-    """Gets a summary of all current holdings."""
+    """Gets a summary of all current holdings.
 
-    # Get all assets
-    all_assets = get_all_assets()
+    Uses a single SQL query with GROUP BY and a LEFT JOIN subquery for the
+    latest price to avoid the N+1 query problem.
+    """
 
-    # Get value of all current holdings
+    PORTFOLIO_SUMMARY_QUERY = """
+    SELECT
+        a.id          AS asset_id,
+        a.symbol,
+        a.name,
+        a.asset_type,
+        a.currency,
+        SUM(CASE WHEN t.transaction_type = 'buy' THEN t.quantity ELSE -t.quantity END) AS holdings,
+        ph.price      AS latest_price
+    FROM assets a
+    JOIN transactions t ON t.asset_id = a.id
+    LEFT JOIN (
+        SELECT ph1.asset_id, ph1.price
+        FROM price_history ph1
+        INNER JOIN (
+            SELECT asset_id, MAX(date) AS max_date
+            FROM price_history
+            GROUP BY asset_id
+        ) ph2 ON ph1.asset_id = ph2.asset_id AND ph1.date = ph2.max_date
+    ) ph ON ph.asset_id = a.id
+    GROUP BY a.id, a.symbol, a.name, a.asset_type, a.currency, ph.price
+    HAVING holdings > 0;
+    """
+
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(PORTFOLIO_SUMMARY_QUERY)
+            rows = cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_portfolio_summary: {e}")
+        return {}
+
     holdings_dict = {}
-    for asset in all_assets:
-        asset_id = asset["id"]
-        asset_symbol = asset["symbol"]
-        asset_name = asset["name"]
-        asset_type = asset["asset_type"]
-        asset_currency = asset["currency"]
+    for row in rows:
+        asset_currency = row["currency"]
+        latest_price = row["latest_price"]
 
-        asset_holdings = calculate_holdings(asset_id)
+        asset_dkk_price = None
+        if latest_price is not None:
+            asset_dkk_price = convert_currency(latest_price, asset_currency, "DKK")
 
-        # Only add if asset is held
-        if asset_holdings > 0.0:
+        holdings_dict[row["symbol"]] = {
+            "asset_id"       : row["asset_id"],
+            "asset_holdings" : row["holdings"],
+            "asset_type"     : row["asset_type"].capitalize(),
+            "latest_price"   : latest_price,
+            "asset_currency" : asset_currency,
+            "asset_dkk_price": asset_dkk_price,
+            "asset_name"     : row["name"],
+        }
 
-            asset_latest_price = get_latest_price(asset_id)
-
-            asset_dkk_price = None
-
-            if asset_latest_price is not None:
-                asset_dkk_price = convert_currency(asset_latest_price, asset_currency, "DKK")
-
-            holdings_dict[asset_symbol] = {
-                "asset_id" : asset_id,
-                "asset_holdings" : asset_holdings,
-                "asset_type" : asset_type.capitalize(),
-                "latest_price" : asset_latest_price,
-                "asset_currency" : asset_currency,
-                "asset_dkk_price" : asset_dkk_price,
-                "asset_name" : asset_name
-            }
-    
     return holdings_dict
 
 
