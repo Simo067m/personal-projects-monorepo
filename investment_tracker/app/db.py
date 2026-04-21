@@ -60,6 +60,7 @@ def get_db_connection():
     conn = None
     try:
         conn = sqlite3.connect(DB_FILE)
+        conn.row_factory = sqlite3.Row  # Rows now accessible by column name: row["symbol"]
 
         # Yield the connection object
         yield conn
@@ -227,7 +228,7 @@ def get_latest_price(asset_id : int):
 
             result = cursor.fetchone()
             
-            return result[0] if result else None
+            return result["price"] if result else None
 
     except sqlite3.Error as e:
         print(f"An error occurred in get_latest_price: {e}")
@@ -241,8 +242,8 @@ def calculate_holdings(asset_id : int):
     # Count holdings in the transactions
     total_holdings = 0
     for transaction in transactions:
-        transaction_type = transaction[2]
-        quantity = transaction[4]
+        transaction_type = transaction["transaction_type"]
+        quantity = transaction["quantity"]
         if transaction_type == "buy":
             total_holdings += quantity
         else:
@@ -259,11 +260,11 @@ def get_portfolio_summary():
     # Get value of all current holdings
     holdings_dict = {}
     for asset in all_assets:
-        asset_id = asset[0]
-        asset_symbol = asset[1]
-        asset_name = asset[2]
-        asset_type = asset[3]
-        asset_currency = asset[4]
+        asset_id = asset["id"]
+        asset_symbol = asset["symbol"]
+        asset_name = asset["name"]
+        asset_type = asset["asset_type"]
+        asset_currency = asset["currency"]
 
         asset_holdings = calculate_holdings(asset_id)
 
@@ -323,7 +324,7 @@ def get_asset_id_by_symbol(symbol : str):
 
             result = cursor.fetchone()
             
-            return result[0] if result else None
+            return result["id"] if result else None
             
     except sqlite3.Error as e:
         print(f"An error occurred in get_asset_id_by_symbol: {e}")
@@ -393,16 +394,16 @@ def get_all_transactions():
 
             return [
                 {
-                    "id": row[0],
-                    "symbol": row[1],
-                    "transaction_type": row[2],
-                    "date": row[3],
-                    "quantity": row[4],
-                    "price_per_unit": row[5],
-                    "fees": row[6],
-                    "asset_type": row[7],
-                    "currency": row[8],
-                    "total_price": row[4] * row[5] + row[6] if row[2] == "buy" else row[4] * row[5]
+                    "id": row["id"],
+                    "symbol": row["symbol"],
+                    "transaction_type": row["transaction_type"],
+                    "date": row["date"],
+                    "quantity": row["quantity"],
+                    "price_per_unit": row["price_per_unit"],
+                    "fees": row["fees"],
+                    "asset_type": row["asset_type"],
+                    "currency": row["currency"],
+                    "total_price": row["quantity"] * row["price_per_unit"] + row["fees"] if row["transaction_type"] == "buy" else row["quantity"] * row["price_per_unit"]
                 }
                 for row in rows
             ]
