@@ -2,6 +2,7 @@ import sqlite3
 import os
 
 from contextlib import contextmanager
+from flask import current_app
 
 from .utils import convert_currency
 
@@ -76,26 +77,33 @@ def get_db_connection():
 def initialize_database():
     """Creates the database file and tables.
     Checks if tables already exist.
+
+    Skips instance folder creation when using an in-memory database,
+    since ':memory:' is not a real file path.
     """
 
-    if not os.path.exists(INSTANCE_FOLDER):
-        os.makedirs(INSTANCE_FOLDER)
-        print(f"Created instance folder at {INSTANCE_FOLDER}.")
-    
-    try:
-        with get_db_connection() as conn:
-            print(f"Checking database at: {DB_FILE}")
-            cursor = conn.cursor()
-            
-            cursor.execute(CREATE_ASSETS_TABLE)
-            cursor.execute(CREATE_TRANSACTIONS_TABLE)
-            cursor.execute(CREATE_PRICE_HISTORY_TABLE)
-            
-            conn.commit()
-            print("Database tables verified/created successfully.")
+    db_path = current_app.config["DATABASE"]
 
-    except sqlite3.Error as e:
-        print(f"Database initialization failed: {e}")
+    # Create the instance for a real file-based database
+    if db_path != ":memory:":
+        if not os.path.exists(INSTANCE_FOLDER):
+            os.makedirs(INSTANCE_FOLDER)
+            print(f"Created instance folder at {INSTANCE_FOLDER}.")
+        
+        try:
+            with get_db_connection() as conn:
+                print(f"Checking database at: {DB_FILE}")
+                cursor = conn.cursor()
+                
+                cursor.execute(CREATE_ASSETS_TABLE)
+                cursor.execute(CREATE_TRANSACTIONS_TABLE)
+                cursor.execute(CREATE_PRICE_HISTORY_TABLE)
+                
+                conn.commit()
+                print("Database tables verified/created successfully.")
+
+        except sqlite3.Error as e:
+            print(f"Database initialization failed: {e}")
 
 def add_asset(symbol : str, name : str, asset_type : str, currency : str):
     """Adds an asset to the assets table."""
