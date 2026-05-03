@@ -20,6 +20,7 @@ def app():
     """
 
     db_fd, db_path = tempfile.mkstemp(suffix=".db")
+    os.close(db_fd)  # Close immediately so SQLite can open the file on all platforms
 
     class TestConfig:
         TESTING = True
@@ -30,8 +31,7 @@ def app():
 
     yield app
 
-    # Teardown: close the file descriptor and delete the temp file
-    os.close(db_fd)
+    # Teardown: delete the temp file
     os.unlink(db_path)
 
 
