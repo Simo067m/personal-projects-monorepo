@@ -11,9 +11,17 @@ python = "^3.10"
 flask = "^3.0.0"
 requests = "^2.31.0"
 psutil = "^7.2.1"
+cachetools = "^5.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
+
+[tool.pytest.ini_options]
+# Where pytest looks for test files
+testpaths = ["tests"]
+# Adds the project root to sys.path so imports like
+# `from run import create_app` work inside test files
+pythonpath = ["."]
 
 [build-system]
 requires = ["poetry-core"]

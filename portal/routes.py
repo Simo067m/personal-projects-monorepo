@@ -2,11 +2,13 @@ import psutil
 from flask import Blueprint, render_template, jsonify, url_for
 
 # Define the Blueprint
-portal_bp = Blueprint('portal', __name__)
+portal_bp = Blueprint('portal', __name__,
+                      template_folder='templates',
+                      static_folder='static')
 
 @portal_bp.route("/")
 def home():
-    return render_template("portal_home.html")
+    return render_template("portal/portal_home.html")
 
 @portal_bp.route('/api/system_status')
 def system_status():

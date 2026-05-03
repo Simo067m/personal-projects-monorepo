@@ -2,6 +2,7 @@ import sqlite3
 import os
 
 from contextlib import contextmanager
+from flask import current_app, has_app_context
 
 from .utils import convert_currency
 
@@ -56,10 +57,13 @@ def get_db_connection():
             cursor = conn.cursor()
     """
 
-    # Connect to database file
+    # Use the configured DB when running inside a Flask app context (tests/web app).
+    # Fall back to the module default for scripts that run without app context.
     conn = None
     try:
-        conn = sqlite3.connect(DB_FILE)
+        db_path = current_app.config.get("DATABASE", DB_FILE) if has_app_context() else DB_FILE
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row  # Rows now accessible by column name: row["symbol"]
 
         # Yield the connection object
         yield conn
@@ -75,21 +79,29 @@ def get_db_connection():
 def initialize_database():
     """Creates the database file and tables.
     Checks if tables already exist.
+
+    Skips instance folder creation when using an in-memory database,
+    since ':memory:' is not a real file path.
     """
 
-    if not os.path.exists(INSTANCE_FOLDER):
-        os.makedirs(INSTANCE_FOLDER)
-        print(f"Created instance folder at {INSTANCE_FOLDER}.")
-    
+    db_path = current_app.config.get("DATABASE", DB_FILE) if has_app_context() else DB_FILE
+
+    # Create the instance folder only for a real file-based database
+    if db_path != ":memory:":
+        if not os.path.exists(INSTANCE_FOLDER):
+            os.makedirs(INSTANCE_FOLDER)
+            print(f"Created instance folder at {INSTANCE_FOLDER}.")
+
+    # Always create tables regardless of database type
     try:
         with get_db_connection() as conn:
-            print(f"Checking database at: {DB_FILE}")
+            print(f"Checking database at: {db_path}")
             cursor = conn.cursor()
-            
+
             cursor.execute(CREATE_ASSETS_TABLE)
             cursor.execute(CREATE_TRANSACTIONS_TABLE)
             cursor.execute(CREATE_PRICE_HISTORY_TABLE)
-            
+
             conn.commit()
             print("Database tables verified/created successfully.")
 
@@ -227,7 +239,7 @@ def get_latest_price(asset_id : int):
 
             result = cursor.fetchone()
             
-            return result[0] if result else None
+            return result["price"] if result else None
 
     except sqlite3.Error as e:
         print(f"An error occurred in get_latest_price: {e}")
@@ -241,8 +253,8 @@ def calculate_holdings(asset_id : int):
     # Count holdings in the transactions
     total_holdings = 0
     for transaction in transactions:
-        transaction_type = transaction[2]
-        quantity = transaction[4]
+        transaction_type = transaction["transaction_type"]
+        quantity = transaction["quantity"]
         if transaction_type == "buy":
             total_holdings += quantity
         else:
@@ -253,40 +265,58 @@ def calculate_holdings(asset_id : int):
 def get_portfolio_summary():
     """Gets a summary of all current holdings."""
 
-    # Get all assets
-    all_assets = get_all_assets()
+    PORTFOLIO_SUMMARY_QUERY = """
+    SELECT
+        a.id          AS asset_id,
+        a.symbol,
+        a.name,
+        a.asset_type,
+        a.currency,
+        SUM(CASE WHEN t.transaction_type = 'buy' THEN COALESCE(t.quantity, 0) ELSE -COALESCE(t.quantity, 0) END) AS holdings,
+        ph.price      AS latest_price
+    FROM assets a
+    JOIN transactions t ON t.asset_id = a.id
+    LEFT JOIN (
+        SELECT ph1.asset_id, ph1.price
+        FROM price_history ph1
+        INNER JOIN (
+            SELECT asset_id, MAX(date) AS max_date
+            FROM price_history
+            GROUP BY asset_id
+        ) ph2 ON ph1.asset_id = ph2.asset_id AND ph1.date = ph2.max_date
+    ) ph ON ph.asset_id = a.id
+    GROUP BY a.id, a.symbol, a.name, a.asset_type, a.currency
+    HAVING holdings > 0;
+    """
 
-    # Get value of all current holdings
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(PORTFOLIO_SUMMARY_QUERY)
+            rows = cursor.fetchall()
+    except sqlite3.Error as e:
+        print(f"An error occurred in get_portfolio_summary: {e}")
+        return {}
+
     holdings_dict = {}
-    for asset in all_assets:
-        asset_id = asset[0]
-        asset_symbol = asset[1]
-        asset_name = asset[2]
-        asset_type = asset[3]
-        asset_currency = asset[4]
+    for row in rows:
+        asset_currency = row["currency"]
+        latest_price = row["latest_price"]
 
-        asset_holdings = calculate_holdings(asset_id)
+        asset_dkk_price = None
+        if latest_price is not None:
+            asset_dkk_price = convert_currency(latest_price, asset_currency, "DKK")
 
-        # Only add if asset is held
-        if asset_holdings > 0.0:
+        holdings_dict[row["symbol"]] = {
+            "asset_id"       : row["asset_id"],
+            "asset_holdings" : row["holdings"],
+            "asset_type"     : row["asset_type"].capitalize(),
+            "latest_price"   : latest_price,
+            "asset_currency" : asset_currency,
+            "asset_dkk_price": asset_dkk_price,
+            "asset_name"     : row["name"],
+        }
 
-            asset_latest_price = get_latest_price(asset_id)
-
-            asset_dkk_price = None
-
-            if asset_latest_price is not None:
-                asset_dkk_price = convert_currency(asset_latest_price, asset_currency, "DKK")
-
-            holdings_dict[asset_symbol] = {
-                "asset_id" : asset_id,
-                "asset_holdings" : asset_holdings,
-                "asset_type" : asset_type.capitalize(),
-                "latest_price" : asset_latest_price,
-                "asset_currency" : asset_currency,
-                "asset_dkk_price" : asset_dkk_price,
-                "asset_name" : asset_name
-            }
-    
     return holdings_dict
 
 
@@ -323,7 +353,7 @@ def get_asset_id_by_symbol(symbol : str):
 
             result = cursor.fetchone()
             
-            return result[0] if result else None
+            return result["id"] if result else None
             
     except sqlite3.Error as e:
         print(f"An error occurred in get_asset_id_by_symbol: {e}")
@@ -393,16 +423,16 @@ def get_all_transactions():
 
             return [
                 {
-                    "id": row[0],
-                    "symbol": row[1],
-                    "transaction_type": row[2],
-                    "date": row[3],
-                    "quantity": row[4],
-                    "price_per_unit": row[5],
-                    "fees": row[6],
-                    "asset_type": row[7],
-                    "currency": row[8],
-                    "total_price": row[4] * row[5] + row[6] if row[2] == "buy" else row[4] * row[5]
+                    "id": row["id"],
+                    "symbol": row["symbol"],
+                    "transaction_type": row["transaction_type"],
+                    "date": row["date"],
+                    "quantity": row["quantity"],
+                    "price_per_unit": row["price_per_unit"],
+                    "fees": row["fees"],
+                    "asset_type": row["asset_type"],
+                    "currency": row["currency"],
+                    "total_price": row["quantity"] * row["price_per_unit"] + row["fees"] if row["transaction_type"] == "buy" else row["quantity"] * row["price_per_unit"]
                 }
                 for row in rows
             ]
