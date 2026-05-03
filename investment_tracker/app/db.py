@@ -86,26 +86,26 @@ def initialize_database():
 
     db_path = current_app.config["DATABASE"]
 
-    # Create the instance for a real file-based database
+    # Create the instance folder only for a real file-based database
     if db_path != ":memory:":
         if not os.path.exists(INSTANCE_FOLDER):
             os.makedirs(INSTANCE_FOLDER)
             print(f"Created instance folder at {INSTANCE_FOLDER}.")
-        
-        try:
-            with get_db_connection() as conn:
-                print(f"Checking database at: {db_path}")
-                cursor = conn.cursor()
-                
-                cursor.execute(CREATE_ASSETS_TABLE)
-                cursor.execute(CREATE_TRANSACTIONS_TABLE)
-                cursor.execute(CREATE_PRICE_HISTORY_TABLE)
-                
-                conn.commit()
-                print("Database tables verified/created successfully.")
 
-        except sqlite3.Error as e:
-            print(f"Database initialization failed: {e}")
+    try:
+        with get_db_connection() as conn:
+            print(f"Checking database at: {db_path}")
+            cursor = conn.cursor()
+
+            cursor.execute(CREATE_ASSETS_TABLE)
+            cursor.execute(CREATE_TRANSACTIONS_TABLE)
+            cursor.execute(CREATE_PRICE_HISTORY_TABLE)
+
+            conn.commit()
+            print("Database tables verified/created successfully.")
+
+    except sqlite3.Error as e:
+        print(f"Database initialization failed: {e}")
 
 def add_asset(symbol : str, name : str, asset_type : str, currency : str):
     """Adds an asset to the assets table."""
