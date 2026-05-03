@@ -57,7 +57,15 @@ def create_app(config_object=None):
 
 # Module-level app instance for Gunicorn and direct execution.
 # Gunicorn expects a module-level `app` variable: `gunicorn -w 2 run:app`
-app = create_app()
+#
+# Tests and import-based tooling can opt out of import-time app creation
+# (and the associated config/database side effects) by setting
+# RUN_SKIP_APP_INIT=1 before importing this module.
+app = None
+if os.environ.get("RUN_SKIP_APP_INIT") != "1":
+    app = create_app()
 
 if __name__ == "__main__":
+    if app is None:
+        app = create_app()
     app.run(debug=True, port=5000)
