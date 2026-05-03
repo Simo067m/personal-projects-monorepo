@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 from contextlib import contextmanager
-from flask import current_app
+from flask import current_app, has_app_context
 
 from .utils import convert_currency
 
@@ -57,10 +57,12 @@ def get_db_connection():
             cursor = conn.cursor()
     """
 
-    # Connect to database file
+    # Use the configured DB when running inside a Flask app context (tests/web app).
+    # Fall back to the module default for scripts that run without app context.
     conn = None
     try:
-        conn = sqlite3.connect(DB_FILE)
+        db_path = current_app.config.get("DATABASE", DB_FILE) if has_app_context() else DB_FILE
+        conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row  # Rows now accessible by column name: row["symbol"]
 
         # Yield the connection object
@@ -92,7 +94,7 @@ def initialize_database():
         
         try:
             with get_db_connection() as conn:
-                print(f"Checking database at: {DB_FILE}")
+                print(f"Checking database at: {db_path}")
                 cursor = conn.cursor()
                 
                 cursor.execute(CREATE_ASSETS_TABLE)
