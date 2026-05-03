@@ -1,0 +1,35 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      # config.py is gitignored, so it won't exist in CI.
+      # We create a minimal dummy here so the module-level
+      # app = create_app() in run.py can import it without failing.
+      # Tests never actually hit the exchange rate API, so the
+      # dummy key is harmless.
+      - name: Create dummy config for CI
+        run: |
+          echo 'FLASK_SECRET = "ci-test-secret"' > config.py
+          echo 'EXCHANGE_RATE_API_KEY = "dummy-key"' >> config.py
+
+      - name: Run tests
+        run: poetry run pytest tests/ -v
