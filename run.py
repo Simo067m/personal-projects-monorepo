@@ -5,12 +5,15 @@ import platform # To check if we are on Windows or Linux
 from flask import Flask
 
 # Import blueprints
-from portal.routes import portal_bp as portal_bp
+from portal.routes import portal_bp
+from finance.routes import finance_bp
 from investment_tracker.app.routes_web import web as investment_web
 from investment_tracker.app.routes_api import api as investment_api
+from memberships.app.routes_web import web as memberships_web
 
 # Import database modules
 from investment_tracker.app import db as investment_db
+from memberships.app import db as memberships_db
 
 # Path setup
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -45,12 +48,14 @@ def create_app(config_object=None):
 
     # Register blueprints
     app.register_blueprint(portal_bp)
-    app.register_blueprint(investment_web, url_prefix="/investments")
-    app.register_blueprint(investment_api, url_prefix="/investments/api")
-
+    app.register_blueprint(finance_bp, url_prefix="/finance")
+    app.register_blueprint(investment_web, url_prefix="/finance/investments")
+    app.register_blueprint(investment_api, url_prefix="/finance/investments/api")
+    app.register_blueprint(memberships_web, url_prefix="/finance/memberships")
     # Initialize database inside the app context
     with app.app_context():
         investment_db.initialize_database()
+        memberships_db.initialize_database()
 
     return app
 

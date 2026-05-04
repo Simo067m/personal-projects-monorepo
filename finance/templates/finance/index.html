@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding-top: 60px; text-align: center; margin-bottom: 40px;">
+    <h1 style="font-weight: 400; font-size: 32px; letter-spacing: -0.04em;">Finance</h1>
+    <p class="card-desc">Track and manage your financial life.</p>
+</div>
+
+<div class="portal-container">
+    <div class="portal-column">
+
+        <div class="bento-card w-full">
+            <div>
+                <div class="card-label">Application / 01</div>
+                <h2 class="card-title">Investment Tracker</h2>
+                <p class="card-desc">Portfolio Management and Asset Performance Tracking.</p>
+            </div>
+            <a href="{{ url_for('investment_web.index') }}" class="btn-minimal">Launch Dashboard</a>
+        </div>
+
+        <div class="bento-card w-full">
+            <div>
+                <div class="card-label">Application / 02</div>
+                <h2 class="card-title">Memberships</h2>
+                <p class="card-desc">Track recurring subscriptions and what they cost you.</p>
+            </div>
+            <a href="{{ url_for('memberships_web.index') }}" class="btn-minimal">Launch Dashboard</a>
+        </div>
+
+    </div>
+
+    <div class="portal-column">
+        <!-- Right column reserved for future finance widgets -->
+    </div>
+</div>
+{% endblock %}

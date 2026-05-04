@@ -1,0 +1,264 @@
+{% extends "memberships/base.html" %}
+
+{% block memberships_content %}
+<div style="max-width: 1100px; margin: 0 auto; padding: 20px;">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-list">
+                {% for category, message in messages %}
+                    <li class="flash-item {{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Page Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+        <div>
+            <div class="card-label">Finance / Memberships</div>
+            <h1 style="font-weight: 400; letter-spacing: -0.03em; margin: 4px 0 0 0;">Your Memberships</h1>
+        </div>
+        <button class="btn-add-membership" onclick="openModal('add')">
+            <span style="font-size: 16px; line-height: 1;">+</span> Add Membership
+        </button>
+    </div>
+
+    <!-- Summary Pills -->
+    <div class="memberships-summary">
+        <div class="summary-pill">
+            Total tracked <span>{{ memberships | length }}</span>
+        </div>
+        {% for currency, amount in monthly_costs.items() %}
+        <div class="summary-pill">
+            Monthly ({{ currency }}) <span>{{ "%.2f"|format(amount) }}</span>
+        </div>
+        {% endfor %}
+        {% for currency, amount in yearly_costs.items() %}
+        <div class="summary-pill">
+            Yearly ({{ currency }}) <span>{{ "%.2f"|format(amount) }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- UPCOMING RENEWALS -->
+    {% if upcoming %}
+    <div class="upcoming-section">
+        <div class="section-header" style="margin-top: 0;">
+            <div class="section-dot upcoming"></div>
+            <span class="card-label" style="margin: 0;">Upcoming Renewals</span>
+            <span class="card-label" style="margin: 0;">Next 30 days</span>
+        </div>
+        <div class="upcoming-grid">
+            {% for item in upcoming %}
+            {% set m = item.membership %}
+            {% set days = item.days_until %}
+            <div class="upcoming-card">
+                <div class="upcoming-days {% if days <= 7 %}urgent-high{% elif days <= 14 %}urgent-mid{% else %}urgent-low{% endif %}">
+                    {{ days }}d
+                </div>
+                <div class="upcoming-info">
+                    <div class="upcoming-org">{{ m.organization }}</div>
+                    <div class="upcoming-meta">
+                        {{ m.renewal_date }}
+                        {% if m.price_per_period %}
+                        · {{ "%.2f"|format(m.price_per_period) }} {{ m.currency }} / {{ m.payment_frequency }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- PAID SECTION -->
+    {% set paid = memberships | selectattr("is_paid") | list %}
+    {% if paid %}
+    <div class="section-header">
+        <div class="section-dot paid"></div>
+        <span class="card-label" style="margin: 0;">Paid Memberships</span>
+        <span class="card-label" style="margin: 0;">{{ paid | length }}</span>
+    </div>
+    <div class="memberships-grid">
+        {% for m in paid %}
+        <div class="membership-card is-paid">
+            <div class="card-header-row">
+                <div class="org-name">{{ m.organization }}</div>
+                <span class="type-pill">{{ m.membership_type }}</span>
+            </div>
+
+            {% if m.description %}
+            <div class="card-description">{{ m.description }}</div>
+            {% endif %}
+
+            <div class="card-footer">
+                <div class="member-since">Since {{ m.member_since }}</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    {% if m.price_per_period %}
+                    <div class="price-badge">
+                        <span class="price-amount">{{ "%.2f"|format(m.price_per_period) }}</span>
+                        <span class="price-freq">{{ m.currency }} / {{ m.payment_frequency }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="card-actions">
+                        <button class="btn-card-action"
+                            data-id="{{ m.id }}"
+                            data-organization="{{ m.organization }}"
+                            data-description="{{ m.description or '' }}"
+                            data-membership-type="{{ m.membership_type }}"
+                            data-member-since="{{ m.member_since }}"
+                            data-is-paid="{{ m.is_paid }}"
+                            data-payment-frequency="{{ m.payment_frequency or '' }}"
+                            data-price="{{ m.price_per_period or '' }}"
+                            data-currency="{{ m.currency or '' }}"
+                            data-renewal-date="{{ m.renewal_date or '' }}"
+                            onclick="openEditModal(this)">[EDIT]</button>
+                        <form action="{{ url_for('memberships_web.handle_delete_membership', membership_id=m.id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Delete {{ m.organization }}?');"
+                              style="display: inline;">
+                            <button type="submit" class="btn-card-action btn-delete">[DEL]</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- FREE SECTION -->
+    {% set free = memberships | rejectattr("is_paid") | list %}
+    {% if free %}
+    <div class="section-header">
+        <div class="section-dot free"></div>
+        <span class="card-label" style="margin: 0;">Free Memberships</span>
+        <span class="card-label" style="margin: 0;">{{ free | length }}</span>
+    </div>
+    <div class="memberships-grid">
+        {% for m in free %}
+        <div class="membership-card is-free">
+            <div class="card-header-row">
+                <div class="org-name">{{ m.organization }}</div>
+                <span class="type-pill">{{ m.membership_type }}</span>
+            </div>
+
+            {% if m.description %}
+            <div class="card-description">{{ m.description }}</div>
+            {% endif %}
+
+            <div class="card-footer">
+                <div class="member-since">Since {{ m.member_since }}</div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="free-badge">FREE</span>
+                    <div class="card-actions">
+                        <button class="btn-card-action"
+                            data-id="{{ m.id }}"
+                            data-organization="{{ m.organization }}"
+                            data-description="{{ m.description or '' }}"
+                            data-membership-type="{{ m.membership_type }}"
+                            data-member-since="{{ m.member_since }}"
+                            data-is-paid="{{ m.is_paid }}"
+                            data-payment-frequency="{{ m.payment_frequency or '' }}"
+                            data-price="{{ m.price_per_period or '' }}"
+                            data-currency="{{ m.currency or '' }}"
+                            data-renewal-date="{{ m.renewal_date or '' }}"
+                            onclick="openEditModal(this)">[EDIT]</button>
+                        <form action="{{ url_for('memberships_web.handle_delete_membership', membership_id=m.id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Delete {{ m.organization }}?');"
+                              style="display: inline;">
+                            <button type="submit" class="btn-card-action btn-delete">[DEL]</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not memberships %}
+    <div style="text-align: center; padding: 80px 0; color: var(--text-muted); font-family: var(--mono-font); font-size: 13px;">
+        No memberships yet. Add your first one above.
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('add')">×</button>
+        <h2 class="modal-title">Add Membership</h2>
+        <form action="{{ url_for('memberships_web.handle_add_membership') }}" method="POST">
+            {% include "memberships/_membership_form.html" %}
+            <button type="submit" class="btn-submit-modal">Add Membership</button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('edit')">×</button>
+        <h2 class="modal-title">Edit Membership</h2>
+        <form id="editForm" method="POST">
+            {% include "memberships/_membership_form.html" with context %}
+            <button type="submit" class="btn-submit-modal">Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(type) {
+        document.getElementById(type + 'Modal').classList.add('active');
+    }
+
+    function closeModal(type) {
+        document.getElementById(type + 'Modal').classList.remove('active');
+    }
+
+    // Close on backdrop click
+    ['addModal', 'editModal'].forEach(id => {
+        document.getElementById(id).addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+    });
+
+    function openEditModal(btn) {
+        const form = document.getElementById('editForm');
+
+        form.action = `/finance/memberships/edit/${btn.dataset.id}`;
+
+        form.querySelector('[name="organization"]').value    = btn.dataset.organization;
+        form.querySelector('[name="description"]').value     = btn.dataset.description;
+        form.querySelector('[name="membership_type"]').value = btn.dataset.membershipType;
+        form.querySelector('[name="member_since"]').value    = btn.dataset.memberSince;
+        form.querySelector('[name="renewal_date"]').value    = btn.dataset.renewalDate;
+        form.querySelector('[name="payment_frequency"]').value = btn.dataset.paymentFrequency;
+        form.querySelector('[name="price_per_period"]').value  = btn.dataset.price;
+        form.querySelector('[name="currency"]').value          = btn.dataset.currency;
+
+        const toggle = form.querySelector('[name="is_paid"]');
+        toggle.checked = btn.dataset.isPaid === '1';
+
+        const paidFields = form.closest('.modal-box').querySelector('.paid-fields');
+        paidFields.classList.toggle('visible', toggle.checked);
+
+        openModal('edit');
+    }
+
+    function togglePaidFields(checkbox) {
+        const paidFields = checkbox.closest('.modal-box').querySelector('.paid-fields');
+        paidFields.classList.toggle('visible', checkbox.checked);
+    }
+
+    function fillPreset(modalId, fieldName, value) {
+        document.querySelector(`#${modalId} [name="${fieldName}"]`).value = value;
+    }
+</script>
+
+{% endblock %}
