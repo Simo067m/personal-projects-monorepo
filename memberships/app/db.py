@@ -210,7 +210,8 @@ def get_upcoming_renewals(days: int = 30):
 
     SELECT_UPCOMING = """
     SELECT * FROM memberships
-    WHERE renewal_date IS NOT NULL
+    WHERE is_paid = 1
+    AND renewal_date IS NOT NULL
     AND renewal_date BETWEEN ? AND ?
     ORDER BY renewal_date ASC;
     """
