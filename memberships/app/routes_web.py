@@ -42,11 +42,17 @@ def handle_add_membership():
     membership_type = request.form.get("membership_type", "").strip()
     member_since    = request.form.get("member_since")
     is_paid         = request.form.get("is_paid") == "1"
-    renewal_date    = request.form.get("renewal_date") or None
 
-    raw_price = request.form.get("price_per_period")
-    frequency = request.form.get("payment_frequency") or None
-    currency  = request.form.get("currency", "").strip().upper() or None
+    if is_paid:
+        renewal_date = request.form.get("renewal_date") or None
+        raw_price    = request.form.get("price_per_period")
+        frequency    = request.form.get("payment_frequency") or None
+        currency     = request.form.get("currency", "").strip().upper() or None
+    else:
+        renewal_date = None
+        raw_price    = None
+        frequency    = None
+        currency     = None
 
     if not (organization and membership_type and member_since):
         flash("Organization, Type, and Member Since are required.", "warning")
@@ -73,11 +79,17 @@ def handle_edit_membership(membership_id):
     membership_type = request.form.get("membership_type", "").strip()
     member_since    = request.form.get("member_since")
     is_paid         = request.form.get("is_paid") == "1"
-    renewal_date    = request.form.get("renewal_date") or None
 
-    raw_price = request.form.get("price_per_period")
-    frequency = request.form.get("payment_frequency") or None
-    currency  = request.form.get("currency", "").strip().upper() or None
+    if is_paid:
+        renewal_date = request.form.get("renewal_date") or None
+        raw_price    = request.form.get("price_per_period")
+        frequency    = request.form.get("payment_frequency") or None
+        currency     = request.form.get("currency", "").strip().upper() or None
+    else:
+        renewal_date = None
+        raw_price    = None
+        frequency    = None
+        currency     = None
 
     if not (organization and membership_type and member_since):
         flash("Organization, Type, and Member Since are required.", "warning")
