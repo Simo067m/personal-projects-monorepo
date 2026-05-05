@@ -61,7 +61,7 @@ def get_db_connection():
     # Fall back to the module default for scripts that run without app context.
     conn = None
     try:
-        db_path = current_app.config.get("DATABASE", DB_FILE) if has_app_context() else DB_FILE
+        db_path = current_app.config.get("INVESTMENT_DATABASE", DB_FILE) if has_app_context() else DB_FILE
         conn = sqlite3.connect(db_path)
         conn.row_factory = sqlite3.Row  # Rows now accessible by column name: row["symbol"]
 
@@ -84,7 +84,7 @@ def initialize_database():
     since ':memory:' is not a real file path.
     """
 
-    db_path = current_app.config.get("DATABASE", DB_FILE) if has_app_context() else DB_FILE
+    db_path = current_app.config.get("INVESTMENT_DATABASE", DB_FILE) if has_app_context() else DB_FILE
 
     # Create the instance folder only for a real file-based database
     if db_path != ":memory:":

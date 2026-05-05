@@ -8,6 +8,7 @@ services:
     volumes:
       # PERSISTENCE: Map the instance folder out so the DB survives updates
       - ./investment_tracker/instance:/app/investment_tracker/instance
+      - ./memberships/instance:/app/memberships/instance
       # CONFIG: Map your secret config file into the container
       - ./config.py:/app/config.py
     environment:

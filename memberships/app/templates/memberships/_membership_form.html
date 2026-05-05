@@ -1,0 +1,70 @@
+<div class="input-group">
+    <label>Organization</label>
+    <input type="text" name="organization" placeholder="e.g. Spotify" required>
+</div>
+
+<div class="input-group">
+    <label>Description</label>
+    <textarea name="description" placeholder="What is this membership for?"></textarea>
+</div>
+
+<div class="input-row">
+    <div class="input-group">
+        <label>Membership Type</label>
+        <input type="text" name="membership_type" placeholder="Standard" required>
+        <div class="preset-container">
+            <span class="preset-tag" onclick="fillPreset(this.closest('.modal-overlay').id, 'membership_type', 'Standard')">Standard</span>
+            <span class="preset-tag" onclick="fillPreset(this.closest('.modal-overlay').id, 'membership_type', 'Premium')">Premium</span>
+            <span class="preset-tag" onclick="fillPreset(this.closest('.modal-overlay').id, 'membership_type', 'Student')">Student</span>
+        </div>
+    </div>
+    <div class="input-group">
+        <label>Member Since</label>
+        <input type="date" name="member_since" required>
+    </div>
+</div>
+
+<!-- Paid / Free Toggle -->
+<div class="toggle-row">
+    <span class="toggle-label">Paid Membership</span>
+    <label class="toggle-switch">
+        <input type="checkbox" name="is_paid" value="1"
+               onchange="togglePaidFields(this)">
+        <span class="toggle-slider"></span>
+    </label>
+</div>
+
+<!-- Payment fields — only visible when toggle is on -->
+<div class="paid-fields">
+    <div class="input-row">
+        <div class="input-group">
+            <label>Price per Period</label>
+            <input type="number" step="0.01" name="price_per_period" placeholder="0.00">
+        </div>
+        <div class="input-group">
+            <label>Currency</label>
+            <input type="text" name="currency" placeholder="DKK">
+            <div class="preset-container">
+                <span class="preset-tag" onclick="fillPreset(this.closest('.modal-overlay').id, 'currency', 'DKK')">DKK</span>
+                <span class="preset-tag" onclick="fillPreset(this.closest('.modal-overlay').id, 'currency', 'EUR')">EUR</span>
+                <span class="preset-tag" onclick="fillPreset(this.closest('.modal-overlay').id, 'currency', 'USD')">USD</span>
+            </div>
+        </div>
+    </div>
+    <div class="input-row">
+        <div class="input-group">
+            <label>Payment Frequency</label>
+            <select name="payment_frequency">
+                <option value="">— select —</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>Next Renewal Date</label>
+            <input type="date" name="renewal_date">
+        </div>
+    </div>
+</div>
