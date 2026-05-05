@@ -105,6 +105,7 @@
                     <div class="card-actions">
                         <button class="btn-card-action"
                             data-id="{{ m.id }}"
+                            data-url="{{ url_for('memberships_web.handle_edit_membership', membership_id=m.id) }}"
                             data-organization="{{ m.organization }}"
                             data-description="{{ m.description or '' }}"
                             data-membership-type="{{ m.membership_type }}"
@@ -156,6 +157,7 @@
                     <div class="card-actions">
                         <button class="btn-card-action"
                             data-id="{{ m.id }}"
+                            data-url="{{ url_for('memberships_web.handle_edit_membership', membership_id=m.id) }}"
                             data-organization="{{ m.organization }}"
                             data-description="{{ m.description or '' }}"
                             data-membership-type="{{ m.membership_type }}"
@@ -231,7 +233,7 @@
     function openEditModal(btn) {
         const form = document.getElementById('editForm');
 
-        form.action = `/finance/memberships/edit/${btn.dataset.id}`;
+        form.action = btn.dataset.url;
 
         form.querySelector('[name="organization"]').value    = btn.dataset.organization;
         form.querySelector('[name="description"]').value     = btn.dataset.description;
