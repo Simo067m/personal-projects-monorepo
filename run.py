@@ -43,8 +43,9 @@ def create_app(config_object=None):
     else:
         import config
         app.secret_key = config.FLASK_SECRET
-        # Point database at the real database file
-        app.config["DATABASE"] = investment_db.DB_FILE
+        # Point each module at its own database file
+        app.config["INVESTMENT_DATABASE"] = investment_db.DB_FILE
+        app.config["MEMBERSHIPS_DATABASE"] = memberships_db.DB_FILE
 
     # Register blueprints
     app.register_blueprint(portal_bp)

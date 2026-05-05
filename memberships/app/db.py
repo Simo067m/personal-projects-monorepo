@@ -77,7 +77,8 @@ def initialize_database():
             conn.commit()
 
             # Migration: add renewal_date to existing databases that predate the column.
-            # ALTER TABLE fails silently if the column already exists.
+            # SQLite raises OperationalError ("duplicate column name") if the column
+            # already exists; we catch that and ignore it.
             try:
                 cursor.execute("ALTER TABLE memberships ADD COLUMN renewal_date TEXT;")
                 conn.commit()
