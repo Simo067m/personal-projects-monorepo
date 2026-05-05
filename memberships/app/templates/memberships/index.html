@@ -95,7 +95,7 @@
 
             <div class="card-footer">
                 <div class="member-since">Since {{ m.member_since }}</div>
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="card-footer-right">
                     {% if m.price_per_period %}
                     <div class="price-badge">
                         <span class="price-amount">{{ "%.2f"|format(m.price_per_period) }}</span>
@@ -116,9 +116,9 @@
                             data-renewal-date="{{ m.renewal_date or '' }}"
                             onclick="openEditModal(this)">[EDIT]</button>
                         <form action="{{ url_for('memberships_web.handle_delete_membership', membership_id=m.id) }}"
-                              method="POST"
-                              onsubmit="return confirm('Delete {{ m.organization }}?');"
-                              style="display: inline;">
+                            method="POST"
+                            onsubmit="return confirm('Delete {{ m.organization }}?');"
+                            class="card-action-form">
                             <button type="submit" class="btn-card-action btn-delete">[DEL]</button>
                         </form>
                     </div>
@@ -151,7 +151,7 @@
 
             <div class="card-footer">
                 <div class="member-since">Since {{ m.member_since }}</div>
-                <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="card-footer-right">
                     <span class="free-badge">FREE</span>
                     <div class="card-actions">
                         <button class="btn-card-action"
@@ -167,9 +167,9 @@
                             data-renewal-date="{{ m.renewal_date or '' }}"
                             onclick="openEditModal(this)">[EDIT]</button>
                         <form action="{{ url_for('memberships_web.handle_delete_membership', membership_id=m.id) }}"
-                              method="POST"
-                              onsubmit="return confirm('Delete {{ m.organization }}?');"
-                              style="display: inline;">
+                            method="POST"
+                            onsubmit="return confirm('Delete {{ m.organization }}?');"
+                            class="card-action-form">
                             <button type="submit" class="btn-card-action btn-delete">[DEL]</button>
                         </form>
                     </div>

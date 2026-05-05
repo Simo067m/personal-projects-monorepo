@@ -111,7 +111,7 @@
 /* --- Membership Card Grid --- */
 .memberships-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 16px;
 }
 
@@ -240,26 +240,7 @@
     transition: opacity 0.2s;
 }
 
-.card-actions form {
-    display: flex;
-    align-items: center;
-}
-
 .membership-card:hover .card-actions { opacity: 1; }
-
-.btn-card-action {
-    background: none;
-    border: none;
-    font-family: var(--mono-font);
-    font-size: 10px;
-    cursor: pointer;
-    padding: 0;
-    color: var(--text-muted);
-    transition: color 0.2s;
-}
-
-.btn-card-action:hover         { color: var(--accent-memberships); }
-.btn-card-action.btn-delete:hover { color: #f87171; }
 
 /* --- Add Button --- */
 .btn-add-membership {
@@ -482,3 +463,72 @@
 .flash-item.success { background: rgba(74,222,128,0.08);  border: 1px solid rgba(74,222,128,0.2);  color: #4ade80; }
 .flash-item.warning { background: rgba(251,191,36,0.08);  border: 1px solid rgba(251,191,36,0.2);  color: #fbbf24; }
 .flash-item.error   { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); color: #f87171; }
+
+/* --- Membership Card: Improved Spacing & Alignment --- */
+.card-header-row { align-items: center; }
+
+.card-footer {
+  align-items: center;
+  gap: 20px;
+}
+
+.card-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Prevent price/date from wrapping */
+.price-badge,
+.member-since,
+.free-badge {
+  white-space: nowrap;
+}
+
+.price-badge { gap: 8px; min-width: 110px; }
+
+/* Make action buttons consistent and vertically centered */
+.card-actions { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.card-actions form {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+}
+
+.card-action-form {
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-card-action {
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.2;
+  background: transparent;
+  border: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-card-action:hover { 
+  color: var(--accent-memberships);
+  background: rgba(167,139,250,0.08); 
+}
+
+.btn-card-action.btn-delete:hover { 
+  color: #f87171; 
+}
